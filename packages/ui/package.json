@@ -10,7 +10,7 @@
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
-    "@types/react": "~19.0.10",
+    "@types/react": "^19.1.0",
     "typescript": "^5.0.0"
   },
   "peerDependencies": {
