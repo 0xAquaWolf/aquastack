@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "scripts": {
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "start": "expo start",
+    "dev": "expo start",
     "prebuild": "expo prebuild",
     "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
@@ -14,6 +15,8 @@
   "dependencies": {
     "@expo/vector-icons": "^14.0.0",
     "@react-navigation/native": "^7.0.3",
+    "@svq/shared": "workspace:*",
+    "@svq/ui": "workspace:*",
     "expo": "~53.0.6",
     "expo-constants": "~17.1.4",
     "expo-linking": "~7.1.4",
@@ -30,9 +33,8 @@
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
     "react-native-web": "^0.20.0",
-    "zustand": "^4.5.1",
-    "@svq/ui": "workspace:*",
-    "@svq/shared": "workspace:*"
+    "react-native-worklets": "^0.5.1",
+    "zustand": "^4.5.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
