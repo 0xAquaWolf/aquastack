@@ -11,11 +11,10 @@ const config = getDefaultConfig(__dirname);
 // Exclude web app's node_modules to prevent conflicts
 config.resolver.blockList = [
   /apps\/web\/node_modules\/.*/,
+  /packages\/ui\/node_modules\/.*/,
   /@types\/node/,
 ];
 
-config.watchFolders = [
-  path.resolve(__dirname, '../../'),
-];
+config.watchFolders = [path.resolve(__dirname, '../../')];
 
 module.exports = withNativeWind(config, { input: './global.css' });
