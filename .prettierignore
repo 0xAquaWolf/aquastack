@@ -34,3 +34,11 @@
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# Ignore YAML configuration files
+**/*.yaml
+**/*.yml
+
+# Ignore React Native native directories
+**/ios/**
+**/android/**
