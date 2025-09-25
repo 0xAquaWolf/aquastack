@@ -13,7 +13,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
-    "clean": "turbo run clean",
+    "clean": "pnpm store prune && pnpm install",
     "dev:all": "turbo run dev",
     "build:ui": "turbo run build --filter=@svq/ui",
     "build:web": "turbo run build --filter=@svq/web",
