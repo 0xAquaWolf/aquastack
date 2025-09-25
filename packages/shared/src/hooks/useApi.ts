@@ -1,38 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { createApiClient } from "../client";
-import type { App } from "@svq/api";
-
-const apiClient = createApiClient("http://localhost:3333");
-
-// Define types based on API schema
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type Quest = {
-  id: string;
-  title: string;
-  description: string;
-  status: "pending" | "in_progress" | "completed";
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type CreateQuest = {
-  title: string;
-  description: string;
-};
-
-type UpdateQuest = Partial<{
-  title: string;
-  description: string;
-  status: "pending" | "in_progress" | "completed";
-}>;
+import { apiClient } from "../index";
+import type { User, Quest, CreateQuest, UpdateQuest } from "../index";
 
 // API client configured for both web and mobile
 
