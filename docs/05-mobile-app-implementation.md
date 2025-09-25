@@ -39,30 +39,30 @@ apps/mobile/
 ### Zustand API Store (`store/api.ts`)
 
 ```typescript
-import { create } from 'zustand';
-import { createApiClient } from '@svq/shared';
-import type { User, Quest, CreateQuest, UpdateQuest } from '@svq/shared';
-import Constants from 'expo-constants';
+import type { CreateQuest, Quest, UpdateQuest, User } from '@svq/shared'
+import { createApiClient } from '@svq/shared'
+import Constants from 'expo-constants'
+import { create } from 'zustand'
 
 interface ApiState {
   // Data
-  users: User[];
-  quests: Quest[];
-  loading: boolean;
-  error: string | null;
-  
+  users: User[]
+  quests: Quest[]
+  loading: boolean
+  error: string | null
+
   // Actions
-  fetchUsers: () => Promise<void>;
-  fetchQuests: () => Promise<void>;
-  createQuest: (quest: CreateQuest) => Promise<void>;
-  updateQuest: (id: string, quest: UpdateQuest) => Promise<void>;
-  deleteQuest: (id: string) => Promise<void>;
-  clearError: () => void;
+  fetchUsers: () => Promise<void>
+  fetchQuests: () => Promise<void>
+  createQuest: (quest: CreateQuest) => Promise<void>
+  updateQuest: (id: string, quest: UpdateQuest) => Promise<void>
+  deleteQuest: (id: string) => Promise<void>
+  clearError: () => void
 }
 
 const apiClient = createApiClient(
   Constants?.expoConfig?.extra?.apiUrl || 'http://localhost:3333'
-);
+)
 
 export const useApiStore = create<ApiState>((set, get) => ({
   // Initial state
@@ -70,46 +70,49 @@ export const useApiStore = create<ApiState>((set, get) => ({
   quests: [],
   loading: false,
   error: null,
-  
+
   // Actions
   fetchQuests: async () => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null })
     try {
-      const response = await apiClient.quests.get();
-      set({ quests: response.data || [], loading: false });
-    } catch {
-      set({ error: 'Failed to fetch quests', loading: false });
+      const response = await apiClient.quests.get()
+      set({ quests: response.data || [], loading: false })
+    }
+    catch {
+      set({ error: 'Failed to fetch quests', loading: false })
     }
   },
-  
+
   createQuest: async (quest: CreateQuest) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null })
     try {
-      const response = await apiClient.quests.post(quest);
-      set((state) => ({
+      const response = await apiClient.quests.post(quest)
+      set(state => ({
         quests: [...state.quests, response.data],
         loading: false,
-      }));
-    } catch {
-      set({ error: 'Failed to create quest', loading: false });
+      }))
+    }
+    catch {
+      set({ error: 'Failed to create quest', loading: false })
     }
   },
-  
+
   deleteQuest: async (id: string) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null })
     try {
-      await apiClient.quests[id].delete();
-      set((state) => ({
-        quests: state.quests.filter((q) => q.id !== id),
+      await apiClient.quests[id].delete()
+      set(state => ({
+        quests: state.quests.filter(q => q.id !== id),
         loading: false,
-      }));
-    } catch {
-      set({ error: 'Failed to delete quest', loading: false });
+      }))
+    }
+    catch {
+      set({ error: 'Failed to delete quest', loading: false })
     }
   },
-  
+
   clearError: () => set({ error: null }),
-}));
+}))
 ```
 
 ### Main Tab Screen (`app/(tabs)/index.tsx`)
@@ -122,16 +125,16 @@ import { useApiStore } from '~/store/api';
 import type { CreateQuest } from '@svq/shared';
 
 export default function Home() {
-  const { 
-    quests, 
-    loading, 
-    error, 
-    fetchQuests, 
-    createQuest, 
+  const {
+    quests,
+    loading,
+    error,
+    fetchQuests,
+    createQuest,
     deleteQuest,
-    clearError 
+    clearError
   } = useApiStore();
-  
+
   const [newQuest, setNewQuest] = useState<CreateQuest>({ title: '', description: '' });
 
   useEffect(() => {
@@ -253,10 +256,10 @@ export default function Home() {
 ### State Structure
 ```typescript
 interface ApiState {
-  users: User[];
-  quests: Quest[];
-  loading: boolean;
-  error: string | null;
+  users: User[]
+  quests: Quest[]
+  loading: boolean
+  error: string | null
   // ... actions
 }
 ```

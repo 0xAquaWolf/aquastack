@@ -31,53 +31,53 @@ packages/shared/
 
 ```typescript
 // Re-export API types and Eden Treaty client
-export * from './src/api';
-export * from './src/client';
+export * from './src/api'
+export * from './src/client'
 
 // Re-export better-auth types
-export * from 'better-auth';
+export * from 'better-auth'
 
 // Shared utility types
 export interface ApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
+  data: T
+  success: boolean
+  message?: string
 }
 
 export interface ApiError {
-  message: string;
-  code?: string;
-  details?: any;
+  message: string
+  code?: string
+  details?: any
 }
 
 // Shared app types
 export interface User {
-  id: string;
-  name: string;
-  email: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  name: string
+  email: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface Quest {
-  id: string;
-  title: string;
-  description: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  title: string
+  description: string
+  status: 'pending' | 'in_progress' | 'completed'
+  userId: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 export interface CreateQuest {
-  title: string;
-  description: string;
+  title: string
+  description: string
 }
 
 export interface UpdateQuest {
-  title?: string;
-  description?: string;
-  status?: 'pending' | 'in_progress' | 'completed';
+  title?: string
+  description?: string
+  status?: 'pending' | 'in_progress' | 'completed'
 }
 ```
 
@@ -85,34 +85,34 @@ export interface UpdateQuest {
 
 ```typescript
 // Import API types from the server
-import type { App } from '@svq/api';
+import type { App } from '@svq/api'
 
 // Re-export the API types for frontend use
-export type { App };
+export type { App }
 
 // Re-export specific types that are commonly used
-export type ApiApp = App;
+export type ApiApp = App
 
 // Explicitly export the Eden Treaty client type
-export type { ApiClient } from './client';
+export type { ApiClient } from './client'
 ```
 
 ### Client Factory (`src/client.ts`)
 
 ```typescript
-import { edenTreaty } from '@elysiajs/eden';
-import type { App } from '@svq/api';
+import type { App } from '@svq/api'
+import { edenTreaty } from '@elysiajs/eden'
 
 // Create Eden Treaty client factory
-export const createApiClient = (baseUrl: string = 'http://localhost:3333') => {
-  return edenTreaty<App>(baseUrl);
-};
+export function createApiClient(baseUrl: string = 'http://localhost:3333') {
+  return edenTreaty<App>(baseUrl)
+}
 
 // Default client for development
-export const apiClient = createApiClient();
+export const apiClient = createApiClient()
 
 // Types for the Eden Treaty client
-export type ApiClient = ReturnType<typeof createApiClient>;
+export type ApiClient = ReturnType<typeof createApiClient>
 ```
 
 ## Dependencies
@@ -134,21 +134,21 @@ export type ApiClient = ReturnType<typeof createApiClient>;
 
 ### In Web App
 ```typescript
-import { createApiClient } from '@svq/shared';
+import { createApiClient } from '@svq/shared'
 
 const apiClient = createApiClient(
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
-);
+)
 ```
 
 ### In Mobile App
 ```typescript
-import { createApiClient } from '@svq/shared';
-import Constants from 'expo-constants';
+import { createApiClient } from '@svq/shared'
+import Constants from 'expo-constants'
 
 const apiClient = createApiClient(
   Constants?.expoConfig?.extra?.apiUrl || 'http://localhost:3333'
-);
+)
 ```
 
 ## Type Safety Features

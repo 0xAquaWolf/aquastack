@@ -8,7 +8,7 @@
 ## Project Structure Conventions
 - **Workspace packages**: Named with `@svq/` prefix (`@svq/web`, `@svq/mobile`, `@svq/ui`, `@svq/shared`)
 - **Shared dependencies**: Use `workspace:*` protocol for internal packages
-- **App routing**: 
+- **App routing**:
   - Next.js App Router (file-based routing in `src/app/`)
   - Expo Router v5 (file-based routing in `app/` with `(tabs)` groups)
 
@@ -25,5 +25,5 @@
 
 ## Naming Conventions
 - **Components**: PascalCase React components
-- **Files**: kebab-case for most files, PascalCase for React components  
+- **Files**: kebab-case for most files, PascalCase for React components
 - **Packages**: Scoped with `@svq/` namespace

@@ -38,63 +38,63 @@ apps/web/
 ### API Client Configuration (`src/lib/api.ts`)
 
 ```typescript
-import { createApiClient } from '@svq/shared';
-import type { ApiClient } from '@svq/shared';
+import type { ApiClient } from '@svq/shared'
+import { createApiClient } from '@svq/shared'
 
 // Create API client for web app
 export const apiClient = createApiClient(
   process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
-);
+)
 
 // Export the client type for use in hooks
-export type { ApiClient };
+export type { ApiClient }
 ```
 
 ### React Query Hooks (`src/hooks/useApi.ts`)
 
 ```typescript
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { apiClient } from '@/lib/api';
-import type { Quest, CreateQuest, UpdateQuest } from '@svq/shared';
+import type { CreateQuest, Quest, UpdateQuest } from '@svq/shared'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { apiClient } from '@/lib/api'
 
 // Quest hooks
-export const useQuests = () => {
+export function useQuests() {
   return useQuery({
     queryKey: ['quests'],
     queryFn: async () => {
-      const response = await apiClient.quests.get();
-      return response.data;
+      const response = await apiClient.quests.get()
+      return response.data
     },
-  });
-};
+  })
+}
 
-export const useCreateQuest = () => {
-  const queryClient = useQueryClient();
-  
+export function useCreateQuest() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async (quest: CreateQuest) => {
-      const response = await apiClient.quests.post(quest);
-      return response.data;
+      const response = await apiClient.quests.post(quest)
+      return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quests'] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] })
     },
-  });
-};
+  })
+}
 
-export const useDeleteQuest = () => {
-  const queryClient = useQueryClient();
-  
+export function useDeleteQuest() {
+  const queryClient = useQueryClient()
+
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiClient.quests[id].delete();
-      return response.data;
+      const response = await apiClient.quests[id].delete()
+      return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['quests'] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] })
     },
-  });
-};
+  })
+}
 ```
 
 ### React Query Provider (`src/components/providers.tsx`)
@@ -155,7 +155,7 @@ export default function Home() {
     <div className="font-sans min-h-screen p-8">
       <main className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">SelfVision Quest</h1>
-        
+
         {/* Create Quest Form */}
         <div className="mb-8 p-6 bg-white rounded-lg shadow-md">
           <h2 className="text-xl font-semibold mb-4">Create New Quest</h2>

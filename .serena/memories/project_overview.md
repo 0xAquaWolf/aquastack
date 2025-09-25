@@ -22,7 +22,7 @@ SelfVision Quest is a full-stack application built as a monorepo with both web a
 ## Architecture
 The project follows a monorepo structure with:
 - `/apps/web` - Next.js 15 web application
-- `/apps/mobile` - Expo React Native mobile application  
+- `/apps/mobile` - Expo React Native mobile application
 - `/packages/ui` - Shared UI components (TypeScript)
 - `/packages/shared` - Shared business logic and authentication
 - `/packages/config` - Shared configuration

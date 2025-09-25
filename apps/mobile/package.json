@@ -1,6 +1,7 @@
 {
   "name": "@svq/mobile",
   "version": "1.0.0",
+  "private": true,
   "main": "expo-router/entry",
   "scripts": {
     "android": "expo run:android",
@@ -8,8 +9,8 @@
     "start": "expo start --dev-client",
     "dev": "expo start",
     "prebuild": "expo prebuild",
-    "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
-    "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
+    "lint": "pnpm lint:mobile",
+    "format": "pnpm lint:mobile --fix",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -37,13 +38,7 @@
   "devDependencies": {
     "@babel/core": "^7.28.4",
     "@types/react": "^19.1.0",
-    "eslint": "^9.36.0",
-    "eslint-config-expo": "^9.2.0",
-    "eslint-config-prettier": "^10.1.8",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.5.14",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.8.3"
-  },
-  "private": true
+  }
 }

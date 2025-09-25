@@ -75,15 +75,15 @@ pnpm build
 **Common Type Issues:**
 
 ```typescript
+// ✅ Correct usage
+import type { Quest } from '@svq/shared' // Add this import
+
 // ❌ Missing import
-import { Quest } from '@svq/shared'; // Add this import
+import { Quest } from '@svq/shared' // Should be Quest type
 
 // ❌ Wrong type usage
-const quest: string = getQuest(); // Should be Quest type
-
-// ✅ Correct usage
-import type { Quest } from '@svq/shared';
-const quest: Quest = getQuest();
+const quest: string = getQuest()
+const quest: Quest = getQuest()
 ```
 
 ### 3. Mobile App Issues
@@ -199,21 +199,21 @@ pnpm dev --inspect-brk
 
 ```typescript
 // ❌ Missing import
-import { Elysia, t } from "elysia"; // Add this
+import { Elysia, t } from 'elysia' // Add this
 
 // ❌ Incorrect schema definition
 const QuestSchema = t.Object({
-  status: t.Enum(["pending", "in_progress", "completed"]), // Use Union instead
-});
+  status: t.Enum(['pending', 'in_progress', 'completed']), // Use Union instead
+})
 
 // ✅ Correct schema definition
 const QuestSchema = t.Object({
   status: t.Union([
-    t.Literal("pending"),
-    t.Literal("in_progress"),
-    t.Literal("completed"),
+    t.Literal('pending'),
+    t.Literal('in_progress'),
+    t.Literal('completed'),
   ]),
-});
+})
 ```
 
 ### 6. React Query Issues (Web App)
@@ -248,10 +248,10 @@ useQuery(['quests']) // Missing queryFn
 useQuery({
   queryKey: ['quests'],
   queryFn: async () => {
-    const response = await apiClient.quests.get();
-    return response.data;
+    const response = await apiClient.quests.get()
+    return response.data
   },
-});
+})
 ```
 
 ### 7. Zustand Issues (Mobile App)
@@ -264,28 +264,29 @@ useQuery({
 **Solutions:**
 
 ```typescript
-// ❌ Incorrect store setup
-import { create } from 'zustand';
+import type { CreateQuest, Quest, UpdateQuest, User } from '@svq/shared'
 
+// ❌ Incorrect store setup
+import { create } from 'zustand'
 // ✅ Correct store setup
-import { create } from 'zustand';
-import type { User, Quest, CreateQuest, UpdateQuest } from '@svq/shared';
+import { create } from 'zustand'
 
 // ❌ Missing async/await
 createQuest: (quest: CreateQuest) => {
-  apiClient.quests.post(quest); // Missing await
+  apiClient.quests.post(quest) // Missing await
 }
 
 // ✅ Correct async/await
 createQuest: async (quest: CreateQuest) => {
   try {
-    const response = await apiClient.quests.post(quest);
-    set((state) => ({
+    const response = await apiClient.quests.post(quest)
+    set(state => ({
       quests: [...state.quests, response.data],
       loading: false,
-    }));
-  } catch {
-    set({ error: 'Failed to create quest', loading: false });
+    }))
+  }
+  catch {
+    set({ error: 'Failed to create quest', loading: false })
   }
 }
 ```
@@ -331,21 +332,21 @@ NEXT_PUBLIC_API_URL=https://your-api-url.com
 **Solutions:**
 
 ```typescript
+import type { App } from '@svq/api'
 // ❌ Missing type import
-import { edenTreaty } from '@elysiajs/eden';
-import App from '@svq/api'; // Should be type import
+import { edenTreaty } from '@elysiajs/eden'
 
 // ✅ Correct type import
-import { edenTreaty } from '@elysiajs/eden';
-import type { App } from '@svq/api';
+import { edenTreaty } from '@elysiajs/eden'
+import App from '@svq/api' // Should be type import
 
 // ❌ Incorrect client usage
-const api = edenTreaty<App>('http://localhost:3333');
-api.get('/quests'); // Should use api.quests.get()
+const api = edenTreaty<App>('http://localhost:3333')
+api.get('/quests') // Should use api.quests.get()
 
 // ✅ Correct client usage
-const api = edenTreaty<App>('http://localhost:3333');
-api.quests.get();
+const api = edenTreaty<App>('http://localhost:3333')
+api.quests.get()
 ```
 
 ### 10. Mobile App Build Issues
@@ -394,8 +395,8 @@ curl -X POST http://localhost:3333/quests -H "Content-Type: application/json" -d
 
 ```javascript
 // Browser console debugging
-console.log('API Response:', response);
-console.log('Error:', error);
+console.log('API Response:', response)
+console.log('Error:', error)
 
 // React DevTools
 // Check component state and props

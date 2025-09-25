@@ -1,12 +1,12 @@
-import '../global.css';
+import { Stack } from 'expo-router'
 
-import { Stack } from 'expo-router';
-import { QueryProvider } from '../components/QueryProvider';
+import { QueryProvider } from '../components/QueryProvider'
+import '../global.css'
 
 export const unstable_settings = {
   // Ensure that reloading on `/modal` keeps a back button present.
   initialRouteName: '(tabs)',
-};
+}
 
 export default function RootLayout() {
   return (
@@ -16,5 +16,5 @@ export default function RootLayout() {
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
       </Stack>
     </QueryProvider>
-  );
+  )
 }

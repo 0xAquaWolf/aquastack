@@ -8,7 +8,7 @@
 3. **Build verification**: Run `pnpm build` to ensure production build works
 4. **Dev server**: Verify `pnpm dev` starts without errors
 
-### Mobile App  
+### Mobile App
 1. **Linting and formatting**: Run `pnpm lint` in `apps/mobile`
 2. **Type checking**: Ensure TypeScript compiles
 3. **Platform testing**: Test on both iOS and Android if native changes made

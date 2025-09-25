@@ -1,0 +1,36 @@
+# Ignore JavaScript/TypeScript files (handled by ESLint)
+**/*.js
+**/*.jsx
+**/*.ts
+**/*.tsx
+**/*.mjs
+**/*.cjs
+
+# Ignore markdown files
+**/*.md
+
+# Ignore .serena folder completely
+.serena/**
+.serena/**/*
+
+# Ignore build directories
+**/dist/**
+**/build/**
+**/out/**
+**/.next/**
+**/public/**
+
+# Ignore dependency directories
+**/node_modules/**
+
+# Ignore cache directories
+**/.cache/**
+**/coverage/**
+
+# Ignore environment files
+**/.env*
+
+# Ignore lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml

@@ -22,14 +22,14 @@ apps/api/
 ### Server Setup
 
 ```typescript
-import { Elysia, t } from "elysia";
-import { cors } from "@elysiajs/cors";
+import { cors } from '@elysiajs/cors'
+import { Elysia, t } from 'elysia'
 
 const app = new Elysia()
   .use(cors({
     origin: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   }))
 ```
 
@@ -43,7 +43,7 @@ const UserSchema = t.Object({
   email: t.String(),
   createdAt: t.Date(),
   updatedAt: t.Date(),
-});
+})
 ```
 
 #### Quest Schema
@@ -53,14 +53,14 @@ const QuestSchema = t.Object({
   title: t.String(),
   description: t.String(),
   status: t.Union([
-    t.Literal("pending"),
-    t.Literal("in_progress"),
-    t.Literal("completed"),
+    t.Literal('pending'),
+    t.Literal('in_progress'),
+    t.Literal('completed'),
   ]),
   userId: t.String(),
   createdAt: t.Date(),
   updatedAt: t.Date(),
-});
+})
 ```
 
 ### Endpoints
@@ -83,7 +83,7 @@ const QuestSchema = t.Object({
 
 ```typescript
 // Export app type for Eden Treaty client
-export type App = typeof app;
+export type App = typeof app
 ```
 
 ## Dependencies

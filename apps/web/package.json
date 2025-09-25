@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\""
+    "lint": "pnpm lint:web"
   },
   "dependencies": {
     "@svq/api": "workspace:*",
@@ -17,13 +17,10 @@
     "next-themes": "^0.4.6"
   },
   "devDependencies": {
-    "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
-    "eslint": "^9.36.0",
-    "eslint-config-next": "15.5.4",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

@@ -1,91 +1,91 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiClient } from "../index";
-import type { User, Quest, CreateQuest, UpdateQuest } from "../index";
+import type { CreateQuest, UpdateQuest } from '../index'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { apiClient } from '../index'
 
 // API client configured for both web and mobile
 
 // User hooks
-export const useUsers = () => {
+export function useUsers() {
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ['users'],
     queryFn: async () => {
-      const response = await apiClient.users.get();
-      return response.data;
+      const response = await apiClient.users.get()
+      return response.data
     },
-  });
-};
+  })
+}
 
-export const useUser = (id: string) => {
+export function useUser(id: string) {
   return useQuery({
-    queryKey: ["users", id],
+    queryKey: ['users', id],
     queryFn: async () => {
-      const response = await apiClient.users[id].get();
-      return response.data;
+      const response = await apiClient.users[id].get()
+      return response.data
     },
     enabled: !!id,
-  });
-};
+  })
+}
 
 // Quest hooks
-export const useQuests = () => {
+export function useQuests() {
   return useQuery({
-    queryKey: ["quests"],
+    queryKey: ['quests'],
     queryFn: async () => {
-      const response = await apiClient.quests.get();
-      return response.data;
+      const response = await apiClient.quests.get()
+      return response.data
     },
-  });
-};
+  })
+}
 
-export const useQuest = (id: string) => {
+export function useQuest(id: string) {
   return useQuery({
-    queryKey: ["quests", id],
+    queryKey: ['quests', id],
     queryFn: async () => {
-      const response = await apiClient.quests[id].get();
-      return response.data;
+      const response = await apiClient.quests[id].get()
+      return response.data
     },
     enabled: !!id,
-  });
-};
+  })
+}
 
-export const useCreateQuest = () => {
-  const queryClient = useQueryClient();
+export function useCreateQuest() {
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (quest: CreateQuest) => {
-      const response = await apiClient.quests.post(quest);
-      return response.data;
+      const response = await apiClient.quests.post(quest)
+      return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["quests"] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] })
     },
-  });
-};
+  })
+}
 
-export const useUpdateQuest = () => {
-  const queryClient = useQueryClient();
+export function useUpdateQuest() {
+  const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ id, quest }: { id: string; quest: UpdateQuest }) => {
-      const response = await apiClient.quests[id].put(quest);
-      return response.data;
+    mutationFn: async ({ id, quest }: { id: string, quest: UpdateQuest }) => {
+      const response = await apiClient.quests[id].put(quest)
+      return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["quests"] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] })
     },
-  });
-};
+  })
+}
 
-export const useDeleteQuest = () => {
-  const queryClient = useQueryClient();
+export function useDeleteQuest() {
+  const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: async (id: string) => {
-      const response = await apiClient.quests[id].delete();
-      return response.data;
+      const response = await apiClient.quests[id].delete()
+      return response.data
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["quests"] });
+      queryClient.invalidateQueries({ queryKey: ['quests'] })
     },
-  });
-};
+  })
+}

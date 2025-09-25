@@ -23,8 +23,8 @@ This document outlines potential future enhancements and improvements for the El
 // Future: Full integration with Elysia
 
 // packages/shared/src/auth.ts
-import { betterAuth } from 'better-auth';
-import { elysiaBetterAuth } from 'better-auth/elysia';
+import { betterAuth } from 'better-auth'
+import { elysiaBetterAuth } from 'better-auth/elysia'
 
 // apps/api/src/auth.ts
 const auth = betterAuth({
@@ -32,37 +32,37 @@ const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
-});
+})
 
 const app = new Elysia()
   .use(elysiaBetterAuth(auth))
   .get('/api/user', async (context) => {
     const session = await auth.api.getSession({
       headers: context.request.headers,
-    });
-    return session;
-  });
+    })
+    return session
+  })
 ```
 
 #### Protected Routes
 ```typescript
 // apps/api/src/middleware/auth.ts
-import { auth } from './auth';
+import { auth } from './auth'
 
 export const authMiddleware = new Elysia()
   .derive(async ({ headers }) => {
-    const session = await auth.api.getSession({ headers });
+    const session = await auth.api.getSession({ headers })
     if (!session) {
-      throw new Error('Unauthorized');
+      throw new Error('Unauthorized')
     }
-    return { user: session.user };
-  });
+    return { user: session.user }
+  })
 
 // Usage
 app.use(authMiddleware)
   .get('/api/protected', ({ user }) => {
-    return { message: 'Protected data', user };
-  });
+    return { message: 'Protected data', user }
+  })
 ```
 
 ### 2. Real-Time Features
@@ -75,47 +75,47 @@ const app = new Elysia()
   .ws('/ws', {
     message(ws, message) {
       // Broadcast quest updates to all connected clients
-      ws.publish('quests', message);
+      ws.publish('quests', message)
     },
-  });
+  })
 
 // apps/web/src/hooks/useRealtimeQuests.ts
-export const useRealtimeQuests = () => {
-  const [quests, setQuests] = useState<Quest[]>([]);
-  
+export function useRealtimeQuests() {
+  const [quests, setQuests] = useState<Quest[]>([])
+
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:3333/ws');
-    
+    const ws = new WebSocket('ws://localhost:3333/ws')
+
     ws.onmessage = (event) => {
-      const quest = JSON.parse(event.data);
-      setQuests(prev => prev.map(q => q.id === quest.id ? quest : q));
-    };
-    
-    return () => ws.close();
-  }, []);
-  
-  return quests;
-};
+      const quest = JSON.parse(event.data)
+      setQuests(prev => prev.map(q => q.id === quest.id ? quest : q))
+    }
+
+    return () => ws.close()
+  }, [])
+
+  return quests
+}
 ```
 
 #### Server-Sent Events (SSE)
 ```typescript
 // apps/api/src/sse.ts
 app.get('/sse/quests', ({ set }) => {
-  set.headers['Content-Type'] = 'text/event-stream';
-  set.headers['Cache-Control'] = 'no-cache';
-  set.headers['Connection'] = 'keep-alive';
-  
+  set.headers['Content-Type'] = 'text/event-stream'
+  set.headers['Cache-Control'] = 'no-cache'
+  set.headers.Connection = 'keep-alive'
+
   return new ResponseStream((stream) => {
     // Send quest updates as SSE
     const sendUpdate = (quest: Quest) => {
-      stream.write(`data: ${JSON.stringify(quest)}\n\n`);
-    };
-    
+      stream.write(`data: ${JSON.stringify(quest)}\n\n`)
+    }
+
     // Store sendUpdate for use elsewhere
-    questUpdateHandlers.push(sendUpdate);
-  });
-});
+    questUpdateHandlers.push(sendUpdate)
+  })
+})
 ```
 
 ### 3. Advanced Quest Management
@@ -124,30 +124,30 @@ app.get('/sse/quests', ({ set }) => {
 ```typescript
 // packages/shared/src/types/quest.ts
 export interface QuestCategory {
-  id: string;
-  name: string;
-  description: string;
-  color: string;
+  id: string
+  name: string
+  description: string
+  color: string
 }
 
 export interface QuestTag {
-  id: string;
-  name: string;
-  color: string;
+  id: string
+  name: string
+  color: string
 }
 
 export interface Quest {
-  id: string;
-  title: string;
-  description: string;
-  status: QuestStatus;
-  category: QuestCategory;
-  tags: QuestTag[];
-  priority: 'low' | 'medium' | 'high';
-  dueDate?: Date;
-  estimatedHours?: number;
-  actualHours?: number;
-  dependencies: string[]; // Quest IDs
+  id: string
+  title: string
+  description: string
+  status: QuestStatus
+  category: QuestCategory
+  tags: QuestTag[]
+  priority: 'low' | 'medium' | 'high'
+  dueDate?: Date
+  estimatedHours?: number
+  actualHours?: number
+  dependencies: string[] // Quest IDs
 }
 ```
 
@@ -156,22 +156,22 @@ export interface Quest {
 // apps/api/src/services/quest-service.ts
 export class QuestService {
   async canStartQuest(questId: string, userId: string): Promise<boolean> {
-    const quest = await this.getQuest(questId);
-    const userQuests = await this.getUserQuests(userId);
-    
+    const quest = await this.getQuest(questId)
+    const userQuests = await this.getUserQuests(userId)
+
     // Check if all dependencies are completed
-    return quest.dependencies.every(depId => {
-      const depQuest = userQuests.find(q => q.id === depId);
-      return depQuest?.status === 'completed';
-    });
+    return quest.dependencies.every((depId) => {
+      const depQuest = userQuests.find(q => q.id === depId)
+      return depQuest?.status === 'completed'
+    })
   }
-  
+
   async getNextAvailableQuests(userId: string): Promise<Quest[]> {
-    const userQuests = await this.getUserQuests(userId);
-    return userQuests.filter(quest => 
-      quest.status === 'pending' && 
-      await this.canStartQuest(quest.id, userId)
-    );
+    const userQuests = await this.getUserQuests(userId)
+    return userQuests.filter(quest =>
+      quest.status === 'pending'
+      && await this.canStartQuest(quest.id, userId)
+    )
   }
 }
 ```
@@ -186,27 +186,27 @@ app.use(fileStorage({
   base: './uploads',
 }))
 
-.post('/api/quests/:id/attachments', async ({ params, body }) => {
-  const files = body.files as File[];
-  const quest = await Quest.findById(params.id);
-  
-  const attachments = await Promise.all(files.map(async (file) => {
-    const path = await file.write(`quests/${params.id}/${file.name}`);
-    return {
-      id: generateId(),
-      filename: file.name,
-      path,
-      size: file.size,
-      mimetype: file.type,
-      uploadedAt: new Date(),
-    };
-  }));
-  
-  quest.attachments = attachments;
-  await quest.save();
-  
-  return { success: true, attachments };
-});
+  .post('/api/quests/:id/attachments', async ({ params, body }) => {
+    const files = body.files as File[]
+    const quest = await Quest.findById(params.id)
+
+    const attachments = await Promise.all(files.map(async (file) => {
+      const path = await file.write(`quests/${params.id}/${file.name}`)
+      return {
+        id: generateId(),
+        filename: file.name,
+        path,
+        size: file.size,
+        mimetype: file.type,
+        uploadedAt: new Date(),
+      }
+    }))
+
+    quest.attachments = attachments
+    await quest.save()
+
+    return { success: true, attachments }
+  })
 ```
 
 ### 5. Advanced Search and Filtering
@@ -215,16 +215,16 @@ app.use(fileStorage({
 ```typescript
 // apps/api/src/search.ts
 app.get('/api/quests/search', ({ query }) => {
-  const { q, status, category, tags, priority } = query;
-  
+  const { q, status, category, tags, priority } = query
+
   return Quest.find({
     $text: q ? { $search: q } : undefined,
-    status: status,
-    category: category,
+    status,
+    category,
     tags: tags ? { $in: tags.split(',') } : undefined,
-    priority: priority,
-  }).sort(q ? { score: { $meta: 'textScore' } } : { createdAt: -1 });
-});
+    priority,
+  }).sort(q ? { score: { $meta: 'textScore' } } : { createdAt: -1 })
+})
 ```
 
 #### Faceted Search
@@ -249,10 +249,10 @@ app.get('/api/quests/facets', async () => {
         ],
       },
     },
-  ]);
-  
-  return facets[0];
-});
+  ])
+
+  return facets[0]
+})
 ```
 
 ## Architecture Improvements
@@ -274,11 +274,11 @@ services/
 // gateway/index.ts
 const gateway = new Elysia()
   .use(cors())
-  .group('/api/auth', (app) => app.proxy('http://localhost:3001'))
-  .group('/api/quests', (app) => app.proxy('http://localhost:3002'))
-  .group('/api/users', (app) => app.proxy('http://localhost:3003'))
-  .group('/api/notifications', (app) => app.proxy('http://localhost:3004'))
-  .listen(3000);
+  .group('/api/auth', app => app.proxy('http://localhost:3001'))
+  .group('/api/quests', app => app.proxy('http://localhost:3002'))
+  .group('/api/users', app => app.proxy('http://localhost:3003'))
+  .group('/api/notifications', app => app.proxy('http://localhost:3004'))
+  .listen(3000)
 ```
 
 ### 2. Event-Driven Architecture
@@ -286,26 +286,26 @@ const gateway = new Elysia()
 #### Event System
 ```typescript
 // packages/shared/src/events.ts
-export type QuestEvent = 
-  | { type: 'QUEST_CREATED'; payload: { quest: Quest } }
-  | { type: 'QUEST_UPDATED'; payload: { quest: Quest } }
-  | { type: 'QUEST_COMPLETED'; payload: { quest: Quest } }
-  | { type: 'QUEST_DELETED'; payload: { questId: string } };
+export type QuestEvent
+  = | { type: 'QUEST_CREATED', payload: { quest: Quest } }
+    | { type: 'QUEST_UPDATED', payload: { quest: Quest } }
+    | { type: 'QUEST_COMPLETED', payload: { quest: Quest } }
+    | { type: 'QUEST_DELETED', payload: { questId: string } }
 
 // apps/api/src/event-bus.ts
 export class EventBus {
-  private subscribers: Map<string, Function[]> = new Map();
-  
+  private subscribers: Map<string, Function[]> = new Map()
+
   subscribe<T>(eventType: string, handler: (event: T) => void) {
     if (!this.subscribers.has(eventType)) {
-      this.subscribers.set(eventType, []);
+      this.subscribers.set(eventType, [])
     }
-    this.subscribers.get(eventType)!.push(handler);
+    this.subscribers.get(eventType)!.push(handler)
   }
-  
+
   publish<T>(eventType: string, event: T) {
-    const handlers = this.subscribers.get(eventType) || [];
-    handlers.forEach(handler => handler(event));
+    const handlers = this.subscribers.get(eventType) || []
+    handlers.forEach(handler => handler(event))
   }
 }
 ```
@@ -315,18 +315,18 @@ export class EventBus {
 // apps/api/src/handlers/notification-handler.ts
 export class NotificationHandler {
   constructor(private eventBus: EventBus) {
-    this.eventBus.subscribe('QUEST_CREATED', this.handleQuestCreated);
-    this.eventBus.subscribe('QUEST_COMPLETED', this.handleQuestCompleted);
+    this.eventBus.subscribe('QUEST_CREATED', this.handleQuestCreated)
+    this.eventBus.subscribe('QUEST_COMPLETED', this.handleQuestCompleted)
   }
-  
+
   private handleQuestCreated = (event: QuestEvent) => {
     if (event.type === 'QUEST_CREATED') {
       this.sendNotification(event.payload.userId, {
         title: 'New Quest Created',
         body: `Quest "${event.payload.title}" has been created`,
-      });
+      })
     }
-  };
+  }
 }
 ```
 
@@ -335,43 +335,44 @@ export class NotificationHandler {
 #### Redis Integration
 ```typescript
 // apps/api/src/cache/redis-cache.ts
-import Redis from 'ioredis';
+import Redis from 'ioredis'
 
 export class RedisCache {
-  private redis: Redis;
-  
+  private redis: Redis
+
   constructor() {
-    this.redis = new Redis(process.env.REDIS_URL);
+    this.redis = new Redis(process.env.REDIS_URL)
   }
-  
+
   async get<T>(key: string): Promise<T | null> {
-    const value = await this.redis.get(key);
-    return value ? JSON.parse(value) : null;
+    const value = await this.redis.get(key)
+    return value ? JSON.parse(value) : null
   }
-  
+
   async set<T>(key: string, value: T, ttl: number = 3600): Promise<void> {
-    await this.redis.setex(key, ttl, JSON.stringify(value));
+    await this.redis.setex(key, ttl, JSON.stringify(value))
   }
-  
+
   async invalidate(pattern: string): Promise<void> {
-    const keys = await this.redis.keys(pattern);
+    const keys = await this.redis.keys(pattern)
     if (keys.length > 0) {
-      await this.redis.del(...keys);
+      await this.redis.del(...keys)
     }
   }
 }
 
 // Usage in routes
 app.get('/api/quests', async ({ cache }) => {
-  const cached = await cache.get<Quest[]>('quests:all');
-  if (cached) return cached;
-  
-  const quests = await Quest.find();
-  await cache.set('quests:all', quests);
-  return quests;
+  const cached = await cache.get<Quest[]>('quests:all')
+  if (cached)
+    return cached
+
+  const quests = await Quest.find()
+  await cache.set('quests:all', quests)
+  return quests
 }, {
   beforeHandle: [{ cache: new RedisCache() }]
-});
+})
 ```
 
 ## Performance Optimizations
@@ -386,7 +387,7 @@ export const questIndices = [
   { key: { status: 1, priority: 1, dueDate: 1 } },
   { key: { category: 1, tags: 1 } },
   { key: { title: 'text', description: 'text' } }, // Full-text search
-];
+]
 ```
 
 #### Query Optimization
@@ -402,9 +403,9 @@ export class QuestRepository {
       { $sort: { priority: -1, createdAt: -1 } },
       { $limit: filters.limit || 50 },
       { $skip: filters.offset || 0 },
-    ];
-    
-    return Quest.aggregate(pipeline);
+    ]
+
+    return Quest.aggregate(pipeline)
   }
 }
 ```
@@ -414,13 +415,13 @@ export class QuestRepository {
 #### Brotli Compression
 ```typescript
 // apps/api/src/compression.ts
-import { compression } from 'elysia-compression';
+import { compression } from 'elysia-compression'
 
 const app = new Elysia()
   .use(compression({
     type: 'brotli',
     threshold: 1024, // Only compress responses larger than 1KB
-  }));
+  }))
 ```
 
 ### 3. CDN Integration
@@ -438,9 +439,9 @@ module.exports = {
         source: '/static/:path*',
         destination: 'https://cdn.yourdomain.com/static/:path*',
       },
-    ];
+    ]
   },
-};
+}
 ```
 
 ## Developer Experience
@@ -450,24 +451,24 @@ module.exports = {
 #### Code Generation
 ```typescript
 // scripts/generate-api-client.ts
-import { generateClient } from '@elysiajs/eden';
+import { generateClient } from '@elysiajs/eden'
 
 async function generateAPIClient() {
   const client = await generateClient({
     url: 'http://localhost:3333',
     output: './packages/shared/src/generated/client.ts',
-  });
-  
-  console.log('API client generated successfully');
+  })
+
+  console.log('API client generated successfully')
 }
 
-generateAPIClient();
+generateAPIClient()
 ```
 
 #### API Documentation
 ```typescript
 // apps/api/src/swagger.ts
-import { swagger } from '@elysiajs/swagger';
+import { swagger } from '@elysiajs/swagger'
 
 const app = new Elysia()
   .use(swagger({
@@ -477,7 +478,7 @@ const app = new Elysia()
         version: '1.0.0',
       },
     },
-  }));
+  }))
 ```
 
 ### 2. Development Environment
@@ -496,7 +497,7 @@ services:
     volumes:
       - ./apps/api:/app
       - /app/node_modules
-  
+
   web:
     build: ./apps/web
     ports:
@@ -528,16 +529,16 @@ services:
 #### Integration Tests
 ```typescript
 // tests/api/integration/quests.test.ts
-import { describe, it, expect, beforeAll } from 'vitest';
-import { createTestServer } from '../utils/test-server';
+import { beforeAll, describe, expect, it } from 'vitest'
+import { createTestServer } from '../utils/test-server'
 
 describe('Quest API Integration', () => {
-  let server: any;
-  
+  let server: any
+
   beforeAll(async () => {
-    server = await createTestServer();
-  });
-  
+    server = await createTestServer()
+  })
+
   it('should create a new quest', async () => {
     const response = await fetch(`${server.url}/api/quests`, {
       method: 'POST',
@@ -546,29 +547,29 @@ describe('Quest API Integration', () => {
         title: 'Test Quest',
         description: 'Test Description',
       }),
-    });
-    
-    expect(response.status).toBe(200);
-    const data = await response.json();
-    expect(data.data.title).toBe('Test Quest');
-  });
-});
+    })
+
+    expect(response.status).toBe(200)
+    const data = await response.json()
+    expect(data.data.title).toBe('Test Quest')
+  })
+})
 ```
 
 #### E2E Tests
 ```typescript
 // tests/e2e/quest-creation.spec.ts
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test'
 
 test('user can create a quest', async ({ page }) => {
-  await page.goto('/');
-  
-  await page.fill('[data-testid="quest-title"]', 'Test Quest');
-  await page.fill('[data-testid="quest-description"]', 'Test Description');
-  await page.click('[data-testid="create-quest-button"]');
-  
-  await expect(page.locator('[data-testid="quest-item"]')).toHaveText('Test Quest');
-});
+  await page.goto('/')
+
+  await page.fill('[data-testid="quest-title"]', 'Test Quest')
+  await page.fill('[data-testid="quest-description"]', 'Test Description')
+  await page.click('[data-testid="create-quest-button"]')
+
+  await expect(page.locator('[data-testid="quest-item"]')).toHaveText('Test Quest')
+})
 ```
 
 ## Monitoring and Analytics
@@ -586,22 +587,22 @@ app.get('/health', async () => {
     memory: process.memoryUsage(),
     database: await checkDatabaseConnection(),
     redis: await checkRedisConnection(),
-  };
-  
-  return health;
-});
+  }
+
+  return health
+})
 ```
 
 #### Metrics Collection
 ```typescript
 // apps/api/src/metrics.ts
-import { Prometheus } from '@elysiajs/prometheus';
+import { Prometheus } from '@elysiajs/prometheus'
 
 const app = new Elysia()
   .use(Prometheus())
   .get('/api/quests', async () => {
     // Auto-collect metrics for response time, status codes, etc.
-  });
+  })
 ```
 
 ### 2. Error Tracking
@@ -609,18 +610,18 @@ const app = new Elysia()
 #### Sentry Integration
 ```typescript
 // apps/api/src/sentry.ts
-import * as Sentry from '@sentry/node';
+import * as Sentry from '@sentry/node'
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
   environment: process.env.NODE_ENV,
-});
+})
 
 const app = new Elysia()
   .onError(({ error }) => {
-    Sentry.captureException(error);
-    return { error: 'Internal Server Error' };
-  });
+    Sentry.captureException(error)
+    return { error: 'Internal Server Error' }
+  })
 ```
 
 ### 3. Analytics
@@ -629,28 +630,28 @@ const app = new Elysia()
 ```typescript
 // packages/shared/src/analytics.ts
 export class Analytics {
-  private events: AnalyticsEvent[] = [];
-  
+  private events: AnalyticsEvent[] = []
+
   track(event: AnalyticsEvent) {
     this.events.push({
       ...event,
       timestamp: new Date(),
       userId: getCurrentUserId(),
-    });
+    })
   }
-  
+
   async flush() {
-    await analyticsService.batchCreate(this.events);
-    this.events = [];
+    await analyticsService.batchCreate(this.events)
+    this.events = []
   }
 }
 
 // Usage in components
-const analytics = new Analytics();
+const analytics = new Analytics()
 analytics.track({
   type: 'QUEST_CREATED',
   data: { questId, category, estimatedTime },
-});
+})
 ```
 
 ## Security Enhancements
@@ -660,14 +661,14 @@ analytics.track({
 #### API Rate Limiting
 ```typescript
 // apps/api/src/rate-limit.ts
-import { rateLimit } from '@elysiajs/rate-limit';
+import { rateLimit } from '@elysiajs/rate-limit'
 
 const app = new Elysia()
   .use(rateLimit({
     duration: 60_000, // 1 minute
     max: 100, // 100 requests per minute
     storage: new MemoryStore(),
-  }));
+  }))
 ```
 
 ### 2. Input Validation
@@ -675,7 +676,7 @@ const app = new Elysia()
 #### Advanced Validation
 ```typescript
 // apps/api/src/validation/schemas.ts
-import { t } from 'elysia';
+import { t } from 'elysia'
 
 export const CreateQuestSchema = t.Object({
   title: t.String({
@@ -697,7 +698,7 @@ export const CreateQuestSchema = t.Object({
     minimum: 0.5,
     maximum: 100,
   })),
-});
+})
 ```
 
 ### 3. Security Headers
@@ -705,19 +706,19 @@ export const CreateQuestSchema = t.Object({
 #### Security Middleware
 ```typescript
 // apps/api/src/security.ts
-import { helmet } from 'elysia-helmet';
+import { helmet } from 'elysia-helmet'
 
 const app = new Elysia()
   .use(helmet())
   .use((app) => {
     return app
       .onRequest(({ set }) => {
-        set.headers['X-Content-Type-Options'] = 'nosniff';
-        set.headers['X-Frame-Options'] = 'DENY';
-        set.headers['X-XSS-Protection'] = '1; mode=block';
-        set.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin';
-      });
-  });
+        set.headers['X-Content-Type-Options'] = 'nosniff'
+        set.headers['X-Frame-Options'] = 'DENY'
+        set.headers['X-XSS-Protection'] = '1; mode=block'
+        set.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+      })
+  })
 ```
 
 ## Deployment Enhancements
@@ -742,24 +743,24 @@ spec:
         app: selfvision-api
     spec:
       containers:
-      - name: api
-        image: selfvision/api:latest
-        ports:
-        - containerPort: 3333
-        env:
-        - name: NODE_ENV
-          value: production
-        - name: DATABASE_URL
-          valueFrom:
-            secretKeyRef:
-              name: database-secret
-              key: url
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3333
-          initialDelaySeconds: 30
-          periodSeconds: 10
+        - name: api
+          image: selfvision/api:latest
+          ports:
+            - containerPort: 3333
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: database-secret
+                  key: url
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3333
+            initialDelaySeconds: 30
+            periodSeconds: 10
 ```
 
 ### 2. CI/CD Pipeline
@@ -808,8 +809,8 @@ spec:
     app: selfvision-api
     version: blue # Switch between blue/green
   ports:
-  - port: 80
-    targetPort: 3333
+    - port: 80
+      targetPort: 3333
 ```
 
 This comprehensive list of future enhancements provides a roadmap for evolving the SelfVision Quest application with modern features, improved architecture, better performance, and enhanced developer experience.

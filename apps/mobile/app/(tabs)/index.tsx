@@ -1,22 +1,22 @@
-import { Stack } from 'expo-router';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { useState } from 'react';
-import { useQuests, useCreateQuest, useDeleteQuest } from '@svq/shared';
-import type { Quest } from '@svq/shared';
+import type { Quest } from '@svq/shared'
+import { useCreateQuest, useDeleteQuest, useQuests } from '@svq/shared'
+import { Stack } from 'expo-router'
+import { useState } from 'react'
+import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native'
 
 export default function Home() {
-  const { data: quests, isLoading } = useQuests();
-  const createQuestMutation = useCreateQuest();
-  const deleteQuestMutation = useDeleteQuest();
+  const { data: quests, isLoading } = useQuests()
+  const createQuestMutation = useCreateQuest()
+  const deleteQuestMutation = useDeleteQuest()
 
-  const [newQuest, setNewQuest] = useState({ title: '', description: '' });
+  const [newQuest, setNewQuest] = useState({ title: '', description: '' })
 
   const handleCreateQuest = () => {
     if (newQuest.title && newQuest.description) {
-      createQuestMutation.mutate(newQuest);
-      setNewQuest({ title: '', description: '' });
+      createQuestMutation.mutate(newQuest)
+      setNewQuest({ title: '', description: '' })
     }
-  };
+  }
 
   const handleDeleteQuest = (id: string) => {
     Alert.alert('Delete Quest', 'Are you sure you want to delete this quest?', [
@@ -26,8 +26,8 @@ export default function Home() {
         onPress: () => deleteQuestMutation.mutate(id),
         style: 'destructive',
       },
-    ]);
-  };
+    ])
+  }
 
   return (
     <>
@@ -41,19 +41,20 @@ export default function Home() {
               placeholder="Quest Title"
               className="mb-2 rounded-lg border border-gray-300 p-2"
               value={newQuest.title}
-              onChangeText={(text) => setNewQuest({ ...newQuest, title: text })}
+              onChangeText={text => setNewQuest({ ...newQuest, title: text })}
             />
             <TextInput
               placeholder="Quest Description"
               className="mb-3 h-20 rounded-lg border border-gray-300 p-2"
               multiline
               value={newQuest.description}
-              onChangeText={(text) => setNewQuest({ ...newQuest, description: text })}
+              onChangeText={text => setNewQuest({ ...newQuest, description: text })}
             />
             <TouchableOpacity
               onPress={handleCreateQuest}
               className="rounded-lg bg-blue-500 p-3"
-              disabled={createQuestMutation.isPending}>
+              disabled={createQuestMutation.isPending}
+            >
               <Text className="text-center font-semibold text-white">
                 {createQuestMutation.isPending ? 'Creating...' : 'Create Quest'}
               </Text>
@@ -76,7 +77,8 @@ export default function Home() {
                           : quest.status === 'in_progress'
                             ? 'bg-yellow-200'
                             : 'bg-gray-200'
-                      }`}>
+                      }`}
+                    >
                       <Text
                         className={`text-xs ${
                           quest.status === 'completed'
@@ -84,7 +86,8 @@ export default function Home() {
                             : quest.status === 'in_progress'
                               ? 'text-yellow-800'
                               : 'text-gray-800'
-                        }`}>
+                        }`}
+                      >
                         {quest.status.replace('_', ' ')}
                       </Text>
                     </View>
@@ -92,7 +95,8 @@ export default function Home() {
                   <TouchableOpacity
                     onPress={() => handleDeleteQuest(quest.id)}
                     className="rounded-lg bg-red-500 px-3 py-2"
-                    disabled={deleteQuestMutation.isPending}>
+                    disabled={deleteQuestMutation.isPending}
+                  >
                     <Text className="text-sm text-white">Delete</Text>
                   </TouchableOpacity>
                 </View>
@@ -110,5 +114,5 @@ export default function Home() {
         </ScrollView>
       </View>
     </>
-  );
+  )
 }

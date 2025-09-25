@@ -1,7 +1,12 @@
 {
   "name": "selfvision-quest",
+  "type": "module",
   "version": "1.0.0",
+  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0",
   "description": "",
+  "author": "",
+  "license": "ISC",
+  "keywords": [],
   "main": "index.js",
   "scripts": {
     "dev": "pnpm --parallel -r dev",
@@ -11,18 +16,40 @@
     "dev:mobile": "pnpm --filter @svq/mobile dev",
     "dev:web": "pnpm --filter @svq/web dev",
     "dev:api": "pnpm --filter @svq/api dev",
-    "clean": "pnpm prune store && pnpm install"
+    "clean": "pnpm prune store && pnpm install",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:web": "eslint apps/web",
+    "lint:mobile": "eslint apps/mobile",
+    "lint:ui": "eslint packages/ui",
+    "lint:shared": "eslint packages/shared",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "type-check": "tsc --noEmit",
+    "prepare": "simple-git-hooks"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "packageManager": "pnpm@9.15.4+sha512.b2dc20e2fc72b3e18848459b37359a32064663e5627a51e4c74b2c29dd8e8e0491483c3abb40789cfd578bf362fb6ba8261b05f0387d76792ed6e23ea3b1b6a0",
   "dependencies": {
     "react": "*",
     "react-dom": "*",
     "react-native": "*",
     "react-native-web": "*",
     "turbo": "^2.5.8"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^5.4.1",
+    "@eslint-react/eslint-plugin": "^1.53.1",
+    "@eslint/js": "^9.36.0",
+    "@typescript-eslint/eslint-plugin": "^8.44.1",
+    "eslint": "^9.36.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-refresh": "^0.4.22",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.6.2",
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "simple-git-hooks": "^2.9.0",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.44.1"
   },
   "pnpm": {
     "overrides": {
@@ -32,14 +59,15 @@
       "react-native-web": "^0.20.0"
     }
   },
-  "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "@typescript-eslint/eslint-plugin": "^8.44.1",
-    "eslint": "^9.36.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-react": "^7.37.5",
-    "prettier": "^3.6.2",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.44.1"
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
+    ],
+    "*.{json,jsonc,yml,yaml,toml}": [
+      "prettier --write"
+    ]
   }
 }

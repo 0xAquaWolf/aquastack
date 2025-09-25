@@ -357,7 +357,7 @@ cd apps/mobile && pnpm lint
 
 ### Port Conflicts
 **Issue**: Port 3333 already in use
-**Solution**: 
+**Solution**:
 ```bash
 # Find process using port 3333
 lsof -i :3333
@@ -370,7 +370,7 @@ lsof -i :3333
 
 ### Type Errors
 **Issue**: TypeScript compilation fails
-**Solution**: 
+**Solution**:
 ```bash
 # Clean install
 rm -rf node_modules package-lock.json
@@ -379,7 +379,7 @@ pnpm install
 
 ### Mobile App Issues
 **Issue**: Mobile app won't start
-**Solution**: 
+**Solution**:
 ```bash
 # Clear Expo cache
 expo r -c

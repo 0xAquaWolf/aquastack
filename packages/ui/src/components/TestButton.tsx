@@ -1,8 +1,8 @@
-import React from 'react';
+import React from 'react'
 
 export interface ButtonProps {
-  children: React.ReactNode;
-  onClick?: () => void;
+  children: React.ReactNode
+  onClick?: () => void
 }
 
 export const TestButton: React.FC<ButtonProps> = ({ children, onClick }) => {
@@ -10,5 +10,5 @@ export const TestButton: React.FC<ButtonProps> = ({ children, onClick }) => {
     <button onClick={onClick} style={{ padding: '8px 16px', border: '1px solid #ccc' }}>
       {children}
     </button>
-  );
-};
+  )
+}

@@ -6,7 +6,7 @@
 
 ## Web App (`apps/web`)
 - `pnpm dev` - Start Next.js dev server with Turbopack
-- `pnpm build` - Build Next.js app with Turbopack  
+- `pnpm build` - Build Next.js app with Turbopack
 - `pnpm start` - Start production server
 - `pnpm lint` - Run ESLint
 

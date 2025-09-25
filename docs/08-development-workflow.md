@@ -97,40 +97,40 @@ cd apps/mobile && pnpm dev
 ```typescript
 // apps/api/src/index.ts
 app.get('/users/:id/posts', ({ params: { id } }) => {
-  return getUserPosts(id);
+  return getUserPosts(id)
 }, {
   params: t.Object({
     id: t.String(),
   }),
   response: t.Array(PostSchema),
-});
+})
 ```
 
 #### Updating Shared Types
 ```typescript
 // packages/shared/index.ts
 export interface Post {
-  id: string;
-  title: string;
-  content: string;
-  authorId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  title: string
+  content: string
+  authorId: string
+  createdAt: Date
+  updatedAt: Date
 }
 ```
 
 #### Using New Types in Frontend
 ```typescript
 // apps/web/src/hooks/useApi.ts
-export const useUserPosts = (userId: string) => {
+export function useUserPosts(userId: string) {
   return useQuery({
     queryKey: ['posts', userId],
     queryFn: async () => {
-      const response = await apiClient.users[userId].posts.get();
-      return response.data;
+      const response = await apiClient.users[userId].posts.get()
+      return response.data
     },
-  });
-};
+  })
+}
 ```
 
 ### 3. Testing Changes
@@ -160,15 +160,15 @@ const PostSchema = t.Object({
   title: t.String(),
   content: t.String(),
   publishedAt: t.Date(), // New field
-});
+})
 ```
 
 ### 2. Verify Type Propagation
 ```typescript
 // Check that frontend types are updated
-const response = await apiClient.posts.get();
-const post = response.data[0];
-console.log(post.publishedAt); // Should have autocompletion
+const response = await apiClient.posts.get()
+const post = response.data[0]
+console.log(post.publishedAt) // Should have autocompletion
 ```
 
 ### 3. Update Frontend Usage

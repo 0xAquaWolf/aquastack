@@ -27,17 +27,17 @@ const QuestSchema = t.Object({
   title: t.String(),
   description: t.String(),
   status: t.Union([
-    t.Literal("pending"),
-    t.Literal("in_progress"),
-    t.Literal("completed"),
+    t.Literal('pending'),
+    t.Literal('in_progress'),
+    t.Literal('completed'),
   ]),
   userId: t.String(),
   createdAt: t.Date(),
   updatedAt: t.Date(),
-});
+})
 
 // Export for Eden Treaty
-export type App = typeof app;
+export type App = typeof app
 ```
 
 ### 2. Eden Treaty Type Generation
@@ -45,13 +45,13 @@ export type App = typeof app;
 Eden Treaty automatically generates client types from the server:
 
 ```typescript
+import type { App } from '@svq/api'
 // packages/shared/src/client.ts
-import { edenTreaty } from '@elysiajs/eden';
-import type { App } from '@svq/api';
+import { edenTreaty } from '@elysiajs/eden'
 
-export const createApiClient = (baseUrl: string = 'http://localhost:3333') => {
-  return edenTreaty<App>(baseUrl);
-};
+export function createApiClient(baseUrl: string = 'http://localhost:3333') {
+  return edenTreaty<App>(baseUrl)
+}
 
 // This creates fully typed client methods:
 // - apiClient.quests.get()
@@ -80,11 +80,11 @@ API Server → Shared Package → Frontend Apps → Runtime Safety
 // Using Union types instead of Enum for better TypeScript support
 const QuestSchema = t.Object({
   status: t.Union([
-    t.Literal("pending"),
-    t.Literal("in_progress"),
-    t.Literal("completed"),
+    t.Literal('pending'),
+    t.Literal('in_progress'),
+    t.Literal('completed'),
   ]),
-});
+})
 ```
 
 #### Response Types
@@ -112,16 +112,16 @@ const QuestSchema = t.Object({
 #### API Type Import
 ```typescript
 // packages/shared/src/api.ts
-import type { App } from '@svq/api';
+import type { App } from '@svq/api'
 
-export type { App };
-export type ApiApp = App;
+export type { App }
+export type ApiApp = App
 ```
 
 #### Client Factory Types
 ```typescript
 // packages/shared/src/client.ts
-export type ApiClient = ReturnType<typeof createApiClient>;
+export type ApiClient = ReturnType<typeof createApiClient>
 
 // This provides types for:
 // - apiClient.quests.get()       → Promise<{ data: Quest[] }>
@@ -133,13 +133,13 @@ export type ApiClient = ReturnType<typeof createApiClient>;
 ```typescript
 // packages/shared/index.ts
 export interface Quest {
-  id: string;
-  title: string;
-  description: string;
-  status: 'pending' | 'in_progress' | 'completed';
-  userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  title: string
+  description: string
+  status: 'pending' | 'in_progress' | 'completed'
+  userId: string
+  createdAt: Date
+  updatedAt: Date
 }
 ```
 
@@ -148,24 +148,24 @@ export interface Quest {
 #### React Query Hooks
 ```typescript
 // apps/web/src/hooks/useApi.ts
-export const useQuests = () => {
+export function useQuests() {
   return useQuery({
     queryKey: ['quests'],
     queryFn: async () => {
-      const response = await apiClient.quests.get();
-      return response.data; // TypeScript knows this is Quest[]
+      const response = await apiClient.quests.get()
+      return response.data // TypeScript knows this is Quest[]
     },
-  });
-};
+  })
+}
 
-export const useCreateQuest = () => {
+export function useCreateQuest() {
   return useMutation({
     mutationFn: async (quest: CreateQuest) => {
-      const response = await apiClient.quests.post(quest);
-      return response.data; // TypeScript knows this is Quest
+      const response = await apiClient.quests.post(quest)
+      return response.data // TypeScript knows this is Quest
     },
-  });
-};
+  })
+}
 ```
 
 #### Component Props
@@ -185,12 +185,12 @@ quests?.map((quest: Quest) => (
 ```typescript
 // apps/mobile/store/api.ts
 interface ApiState {
-  quests: Quest[];        // Typed from shared package
-  loading: boolean;
-  error: string | null;
-  
-  createQuest: (quest: CreateQuest) => Promise<void>;
-  deleteQuest: (id: string) => Promise<void>;
+  quests: Quest[] // Typed from shared package
+  loading: boolean
+  error: string | null
+
+  createQuest: (quest: CreateQuest) => Promise<void>
+  deleteQuest: (id: string) => Promise<void>
 }
 ```
 
@@ -198,9 +198,9 @@ interface ApiState {
 ```typescript
 // apps/mobile/app/(tabs)/index.tsx
 const { quests, createQuest, deleteQuest } = useApiStore();
-const [newQuest, setNewQuest] = useState<CreateQuest>({ 
-  title: '', 
-  description: '' 
+const [newQuest, setNewQuest] = useState<CreateQuest>({
+  title: '',
+  description: ''
 });
 
 // TypeScript knows exactly what properties exist
@@ -214,25 +214,25 @@ const [newQuest, setNewQuest] = useState<CreateQuest>({
 
 ```typescript
 // ❌ TypeScript Error - Property doesn't exist
-apiClient.quests.nonexistentMethod();
+apiClient.quests.nonexistentMethod()
 
 // ❌ TypeScript Error - Wrong type
 apiClient.quests.post({
-  title: "Test",
+  title: 'Test',
   description: 123, // Should be string
-});
+})
 
 // ❌ TypeScript Error - Missing required property
 apiClient.quests.post({
-  title: "Test"
+  title: 'Test'
   // Missing description
-});
+})
 
 // ✅ TypeScript Success - Correct usage
 apiClient.quests.post({
-  title: "Test",
-  description: "Testing type safety"
-});
+  title: 'Test',
+  description: 'Testing type safety'
+})
 ```
 
 ### 2. IDE Autocompletion
@@ -257,14 +257,14 @@ apiClient.quests.post({
 // If you change the API schema:
 // Before:
 interface Quest {
-  title: string;
-  description: string;
+  title: string
+  description: string
 }
 
 // After:
 interface Quest {
-  name: string;        // Changed from title
-  details: string;     // Changed from description
+  name: string // Changed from title
+  details: string // Changed from description
 }
 
 // TypeScript will show errors in all frontend code:
@@ -276,16 +276,16 @@ interface Quest {
 
 ```typescript
 // TypeScript knows exactly what the response looks like
-const response = await apiClient.quests.get();
+const response = await apiClient.quests.get()
 
 // ✅ Safe - TypeScript knows response.data is Quest[]
-response.data.map(quest => quest.title);
+response.data.map(quest => quest.title)
 
 // ❌ Error - TypeScript knows response doesn't have message
-response.message;
+response.message
 
 // ✅ Safe - TypeScript knows response has data property
-response.data;
+response.data
 ```
 
 ## Type Safety Patterns
@@ -294,13 +294,13 @@ response.data;
 ```typescript
 // All API responses follow this pattern:
 interface ApiResponse<T> {
-  data: T;
-  success: boolean;
-  message?: string;
+  data: T
+  success: boolean
+  message?: string
 }
 
 // Eden Treaty automatically creates this structure
-const response = await apiClient.quests.get();
+const response = await apiClient.quests.get()
 // response.data: Quest[]
 // response.success: boolean
 ```
@@ -309,11 +309,12 @@ const response = await apiClient.quests.get();
 ```typescript
 // Type-safe error handling
 try {
-  const response = await apiClient.quests.post(quest);
-  return response.data;
-} catch (error) {
+  const response = await apiClient.quests.post(quest)
+  return response.data
+}
+catch (error) {
   // TypeScript knows what type of error this is
-  console.error('Failed to create quest:', error);
+  console.error('Failed to create quest:', error)
 }
 ```
 
@@ -342,40 +343,40 @@ export const QuestCard: React.FC<QuestCardProps> = ({ quest, onDelete }) => {
 ### 1. Conditional Types
 ```typescript
 // Eden Treaty uses conditional types for path parameters
-type ApiClient = ReturnType<typeof createApiClient>;
+type ApiClient = ReturnType<typeof createApiClient>
 
 // apiClient.quests[id] knows id must be string
-const deleteQuest = async (id: string) => {
-  const response = await apiClient.quests[id].delete();
-  return response.data;
-};
+async function deleteQuest(id: string) {
+  const response = await apiClient.quests[id].delete()
+  return response.data
+}
 ```
 
 ### 2. Generic Type Parameters
 ```typescript
 // React Query generics for custom hooks
-export const useQuest = (id: string) => {
+export function useQuest(id: string) {
   return useQuery({
     queryKey: ['quests', id],
     queryFn: async () => {
-      const response = await apiClient.quests[id].get();
-      return response.data; // TypeScript knows this is Quest
+      const response = await apiClient.quests[id].get()
+      return response.data // TypeScript knows this is Quest
     },
-  });
-};
+  })
+}
 ```
 
 ### 3. Discriminated Unions
 ```typescript
 // Status is a discriminated union
-type QuestStatus = 'pending' | 'in_progress' | 'completed';
+type QuestStatus = 'pending' | 'in_progress' | 'completed'
 
 // TypeScript can narrow down types
 function getStatusColor(status: QuestStatus) {
   switch (status) {
-    case 'pending': return 'gray';
-    case 'in_progress': return 'yellow';
-    case 'completed': return 'green';
+    case 'pending': return 'gray'
+    case 'in_progress': return 'yellow'
+    case 'completed': return 'green'
   }
 }
 ```
@@ -395,12 +396,12 @@ cd apps/mobile && pnpm lint
 
 ### 2. Type Checking
 ```typescript
+import type { Quest } from '@svq/shared'
 // Test that types are properly connected
-import { apiClient } from '@svq/shared';
-import type { Quest } from '@svq/shared';
+import { apiClient } from '@svq/shared'
 
 // This should work with full autocompletion
-const quest: Quest = await apiClient.quests.get().then(res => res.data[0]);
+const quest: Quest = await apiClient.quests.get().then(res => res.data[0])
 ```
 
 ### 3. IDE Integration
@@ -417,10 +418,10 @@ const quest: Quest = await apiClient.quests.get().then(res => res.data[0]);
 
 ```typescript
 // ✅ Correct - type import
-import type { App } from '@svq/api';
+import type { App } from '@svq/api'
 
 // ❌ Incorrect - value import can cause circular dependencies
-import { App } from '@svq/api';
+import { App } from '@svq/api'
 ```
 
 ### 2. Missing Type Exports
@@ -429,9 +430,9 @@ import { App } from '@svq/api';
 
 ```typescript
 // packages/shared/index.ts
-export * from './src/api';
-export * from './src/client';
-export type * from './src/types'; // If you have additional types
+export * from './src/api'
+export * from './src/client'
+export type * from './src/types' // If you have additional types
 ```
 
 ### 3. Runtime vs Compile Time
@@ -441,7 +442,7 @@ export type * from './src/types'; // If you have additional types
 ```typescript
 // TypeScript provides compile-time safety
 // Runtime validation is handled by Elysia schemas
-const response = await apiClient.quests.post(invalidQuest);
+const response = await apiClient.quests.post(invalidQuest)
 // This will fail at runtime due to Elysia schema validation
 ```
 
@@ -451,10 +452,10 @@ const response = await apiClient.quests.post(invalidQuest);
 ```typescript
 // ✅ Good - Simple, clear types
 interface Quest {
-  id: string;
-  title: string;
-  description: string;
-  status: QuestStatus;
+  id: string
+  title: string
+  description: string
+  status: QuestStatus
 }
 
 // ❌ Avoid - Overly complex types
@@ -466,10 +467,10 @@ interface QuestWithComplexNestedTypes {
 ### 2. Use Type Exports
 ```typescript
 // ✅ Export types explicitly
-export type { Quest, CreateQuest, UpdateQuest };
+export type { CreateQuest, Quest, UpdateQuest }
 
 // ❌ Don't rely on implicit exports
-export { Quest, CreateQuest, UpdateQuest };
+export { CreateQuest, Quest, UpdateQuest }
 ```
 
 ### 3. Document Type Intentions
@@ -482,10 +483,10 @@ export { Quest, CreateQuest, UpdateQuest };
  * @property status - Current quest status
  */
 export interface Quest {
-  id: string;
-  title: string;
-  description: string;
-  status: QuestStatus;
+  id: string
+  title: string
+  description: string
+  status: QuestStatus
 }
 ```
 
