@@ -5,7 +5,7 @@ import { useQuests, useCreateQuest, useDeleteQuest } from '@svq/shared';
 import type { Quest } from '@svq/shared';
 
 export default function Home() {
-  const { data: quests, isLoading, error } = useQuests();
+  const { data: quests, isLoading } = useQuests();
   const createQuestMutation = useCreateQuest();
   const deleteQuestMutation = useDeleteQuest();
 
