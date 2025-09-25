@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, ts-nocheck */
+/* eslint-disable ts/ban-ts-comment, style/quote-props, object-shorthand */
 
 // @ts-nocheck
 

@@ -40,6 +40,7 @@ export default antfu(
       '.claude/**',
       '.serena/**',
       '.serena/**/*',
+      'src/routeTree.gen.ts',
     ],
   },
   // Web app specific overrides
