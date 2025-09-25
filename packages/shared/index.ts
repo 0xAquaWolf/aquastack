@@ -1,9 +1,10 @@
 // Re-export API types and Eden Treaty client
-export * from './src/api';
-export * from './src/client';
+export * from "./src/api";
+export * from "./src/client";
+export * from "./src/hooks/useApi";
 
 // Re-export better-auth types
-export * from 'better-auth';
+export * from "better-auth";
 
 // Shared utility types
 export interface ApiResponse<T> {
@@ -31,7 +32,7 @@ export interface Quest {
   id: string;
   title: string;
   description: string;
-  status: 'pending' | 'in_progress' | 'completed';
+  status: "pending" | "in_progress" | "completed";
   userId: string;
   createdAt: Date;
   updatedAt: Date;
@@ -45,5 +46,6 @@ export interface CreateQuest {
 export interface UpdateQuest {
   title?: string;
   description?: string;
-  status?: 'pending' | 'in_progress' | 'completed';
+  status?: "pending" | "in_progress" | "completed";
 }
+
