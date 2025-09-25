@@ -29,27 +29,27 @@
     "prepare": "simple-git-hooks"
   },
   "dependencies": {
-    "react": "*",
-    "react-dom": "*",
-    "react-native": "*",
-    "react-native-web": "*",
-    "turbo": "^2.5.8"
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "react-native": "0.79.5",
+    "react-native-web": "0.20.0",
+    "turbo": "2.5.8"
   },
   "devDependencies": {
-    "@antfu/eslint-config": "^5.4.1",
-    "@eslint-react/eslint-plugin": "^1.53.1",
-    "@eslint/js": "^9.36.0",
-    "@typescript-eslint/eslint-plugin": "^8.44.1",
-    "eslint": "^9.36.0",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-refresh": "^0.4.22",
-    "lint-staged": "^15.2.0",
-    "prettier": "^3.6.2",
-    "prettier-plugin-tailwindcss": "^0.5.14",
-    "simple-git-hooks": "^2.9.0",
-    "typescript": "^5.9.2",
-    "typescript-eslint": "^8.44.1"
+    "@antfu/eslint-config": "5.4.1",
+    "@eslint-react/eslint-plugin": "1.53.1",
+    "@eslint/js": "9.36.0",
+    "@typescript-eslint/eslint-plugin": "8.44.1",
+    "eslint": "9.36.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-refresh": "0.4.22",
+    "lint-staged": "15.5.2",
+    "prettier": "3.6.2",
+    "prettier-plugin-tailwindcss": "0.5.14",
+    "simple-git-hooks": "2.13.1",
+    "typescript": "5.9.2",
+    "typescript-eslint": "8.44.1"
   },
   "pnpm": {
     "overrides": {
@@ -63,11 +63,7 @@
     "pre-commit": "pnpm lint-staged"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": [
-      "eslint --fix"
-    ],
-    "*.{json,jsonc,yml,yaml,toml}": [
-      "prettier --write"
-    ]
+    "*.{js,jsx,ts,tsx}": ["eslint --fix"],
+    "*.{json,jsonc,yml,yaml,toml}": ["prettier --write"]
   }
 }

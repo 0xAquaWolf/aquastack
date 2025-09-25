@@ -5,7 +5,16 @@ type ButtonProps = {
   title: string
 } & TouchableOpacityProps
 
-export function Button({ ref, title, ...touchableProps }: ButtonProps & { ref?: React.RefObject<View | null> }) {
+const styles = {
+  button: 'items-center bg-indigo-500 rounded-[28px] shadow-md p-4',
+  buttonText: 'text-white text-lg font-semibold text-center',
+}
+
+export function Button({
+  ref,
+  title,
+  ...touchableProps
+}: ButtonProps & { ref?: React.RefObject<View | null> }) {
   return (
     <TouchableOpacity
       ref={ref}
@@ -18,8 +27,3 @@ export function Button({ ref, title, ...touchableProps }: ButtonProps & { ref?: 
 }
 
 Button.displayName = 'Button'
-
-const styles = {
-  button: 'items-center bg-indigo-500 rounded-[28px] shadow-md p-4',
-  buttonText: 'text-white text-lg font-semibold text-center',
-}

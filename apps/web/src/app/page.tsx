@@ -52,6 +52,7 @@ export default function Home() {
                 setNewQuest({ ...newQuest, description: e.target.value })}
             />
             <button
+              type="button"
               onClick={handleCreateQuest}
               className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary/90"
             >
@@ -84,6 +85,7 @@ export default function Home() {
                   </span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => deleteQuest.mutate(quest.id)}
                   className="px-3 py-1 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90"
                 >

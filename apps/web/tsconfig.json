@@ -6,6 +6,7 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "module": "esnext",
     "moduleResolution": "bundler",
+    "types": ["next"],
     "paths": {
       "@/*": ["./src/*"]
     },

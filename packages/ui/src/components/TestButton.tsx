@@ -7,7 +7,7 @@ export interface ButtonProps {
 
 export const TestButton: React.FC<ButtonProps> = ({ children, onClick }) => {
   return (
-    <button onClick={onClick} style={{ padding: '8px 16px', border: '1px solid #ccc' }}>
+    <button type="button" onClick={onClick} style={{ padding: '8px 16px', border: '1px solid #ccc' }}>
       {children}
     </button>
   )

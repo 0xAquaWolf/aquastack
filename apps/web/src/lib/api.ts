@@ -1,9 +1,10 @@
 import type { ApiClient } from '@svq/shared'
+import { env } from 'node:process'
 import { createApiClient, apiClient as defaultApiClient } from '@svq/shared'
 
 // Create API client for web app with environment-specific URL
 export const apiClient = createApiClient(
-  import.meta.env?.NEXT_PUBLIC_API_URL || 'http://localhost:3333',
+  env.NEXT_PUBLIC_API_URL || 'http://localhost:3333',
 )
 
 // Export the default client as well for convenience
