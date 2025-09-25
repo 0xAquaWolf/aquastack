@@ -1,9 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { createApiClient } from "../client";
 import type { App } from "@svq/api";
-import { Treaty } from "@svq/api";
 
-const app = Treaty<App>("localhost:3333");
+const apiClient = createApiClient("http://localhost:3333");
 
 // Define types based on API schema
 type User = {
@@ -35,18 +34,7 @@ type UpdateQuest = Partial<{
   status: "pending" | "in_progress" | "completed";
 }>;
 
-// Helper to create API client (works in both web and mobile)
-const createApiInstance = () => {
-  if (typeof window !== "undefined") {
-    // Web environment
-    return createApiClient("http://localhost:3333");
-  } else {
-    // Mobile environment
-    return createApiClient("http://localhost:3333"); // Will need to be configured for mobile
-  }
-};
-
-const apiClient = createApiInstance();
+// API client configured for both web and mobile
 
 // User hooks
 export const useUsers = () => {
