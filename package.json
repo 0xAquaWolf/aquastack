@@ -10,6 +10,7 @@
     "build": "pnpm run build:ui && pnpm run build:web",
     "dev:mobile": "pnpm --filter @svq/mobile dev",
     "dev:web": "pnpm --filter @svq/web dev",
+    "dev:api": "pnpm --filter @svq/api dev",
     "clean": "pnpm prune store && pnpm install"
   },
   "keywords": [],
