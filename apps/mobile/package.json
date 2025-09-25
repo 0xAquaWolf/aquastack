@@ -9,8 +9,10 @@
     "start": "expo start --dev-client",
     "dev": "expo start",
     "prebuild": "expo prebuild",
-    "lint": "pnpm lint:mobile",
-    "format": "pnpm lint:mobile --fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "web": "expo start --web"
   },
   "dependencies": {
