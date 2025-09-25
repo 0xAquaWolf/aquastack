@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'SelfVision Quest',
-  description: 'Your journey to self-improvement',
+  title: 'SelfVision App',
+  description: 'Your application',
 }
 
 export default function RootLayout({
