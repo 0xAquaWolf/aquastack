@@ -1,6 +1,10 @@
+import type { NewQuest, NewUser } from './db/schema'
 import { cors } from '@elysiajs/cors'
 import { treaty } from '@elysiajs/eden'
+import { eq, ilike, or } from 'drizzle-orm'
 import { Elysia, t } from 'elysia'
+import { db } from './db'
+import { quests, users } from './db/schema'
 
 // Define types for SelfVision Quest app
 const UserSchema = t.Object({
@@ -42,6 +46,18 @@ const UpdateQuestSchema = t.Partial(
   }),
 )
 
+const CreateUserSchema = t.Object({
+  name: t.String(),
+  email: t.String(),
+})
+
+const UpdateUserSchema = t.Partial(
+  t.Object({
+    name: t.String(),
+    email: t.String(),
+  }),
+)
+
 const app = new Elysia()
   .use(
     cors({
@@ -56,16 +72,10 @@ const app = new Elysia()
   // User endpoints
   .get(
     '/users',
-    () => {
-      return [
-        {
-          id: '1',
-          name: 'John Doe',
-          email: 'john@example.com',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ]
+    async () => {
+      const result = await db.select().from(users)
+      console.log({ result })
+      return result
     },
     {
       response: t.Array(UserSchema),
@@ -74,14 +84,10 @@ const app = new Elysia()
 
   .get(
     '/users/:id',
-    ({ params: { id } }) => {
-      return {
-        id,
-        name: 'John Doe',
-        email: 'john@example.com',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+    async ({ params: { id } }) => {
+      const result = await db.select().from(users).where(eq(users.id, id))
+      console.log({ result })
+      return result[0] || { error: 'User not found' }
     },
     {
       params: t.Object({
@@ -91,49 +97,107 @@ const app = new Elysia()
     },
   )
 
+  .post(
+    '/users',
+    async ({ body }) => {
+      const newUser: NewUser = {
+        ...body,
+      }
+
+      const result = await db.insert(users).values(newUser).returning()
+      console.log({ result })
+      return result[0]
+    },
+    {
+      body: CreateUserSchema,
+      response: UserSchema,
+    },
+  )
+
+  .put(
+    '/users/:id',
+    async ({ params: { id }, body }) => {
+      const result = await db
+        .update(users)
+        .set({ ...body, updatedAt: new Date() })
+        .where(eq(users.id, id))
+        .returning()
+      console.log({ result })
+      return result[0] || { error: 'User not found' }
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: UpdateUserSchema,
+      response: UserSchema,
+    },
+  )
+
+  .delete(
+    '/users/:id',
+    async ({ params: { id } }) => {
+      const result = await db.delete(users).where(eq(users.id, id)).returning()
+      console.log({ result })
+      return {
+        success: result.length > 0,
+        message: result.length > 0 ? `User ${id} deleted` : 'User not found',
+      }
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      response: t.Object({
+        success: t.Boolean(),
+        message: t.String(),
+      }),
+    },
+  )
+
   // Quest endpoints
   .get(
     '/quests',
-    () => {
-      console.log('quest data requested')
-      return [
-        {
-          id: '1',
-          title: 'Complete API Integration',
-          description: 'Integrate Elysia API with web and mobile apps',
-          status: 'in_progress' as const,
-          userId: '1',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-        {
-          id: '2',
-          title: 'Set up Type Safety',
-          description: 'Ensure end-to-end type safety with Eden Treaty',
-          status: 'pending' as const,
-          userId: '1',
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        },
-      ]
+    async ({ query }) => {
+      let result = await db.select().from(quests)
+
+      // Apply filters if provided
+      if (query?.status) {
+        result = await db.select().from(quests).where(eq(quests.status, query.status as any))
+      }
+
+      if (query?.search) {
+        result = await db.select().from(quests).where(
+          or(
+            ilike(quests.title, `%${query.search}%`),
+            ilike(quests.description, `%${query.search}%`),
+          ),
+        )
+      }
+
+      if (query?.userId) {
+        result = await db.select().from(quests).where(eq(quests.userId, query.userId))
+      }
+
+      console.log({ result })
+      return result
     },
     {
+      query: t.Object({
+        status: t.Optional(t.Union([t.Literal('pending'), t.Literal('in_progress'), t.Literal('completed')])),
+        search: t.Optional(t.String()),
+        userId: t.Optional(t.String()),
+      }),
       response: t.Array(QuestSchema),
     },
   )
 
   .get(
     '/quests/:id',
-    ({ params: { id } }) => {
-      return {
-        id,
-        title: 'Complete API Integration',
-        description: 'Integrate Elysia API with web and mobile apps',
-        status: 'in_progress' as const,
-        userId: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+    async ({ params: { id } }) => {
+      const result = await db.select().from(quests).where(eq(quests.id, id))
+      console.log({ result })
+      return result[0] || { error: 'Quest not found' }
     },
     {
       params: t.Object({
@@ -145,15 +209,15 @@ const app = new Elysia()
 
   .post(
     '/quests',
-    ({ body }) => {
-      return {
-        id: Math.random().toString(36),
+    async ({ body }) => {
+      const newQuest: NewQuest = {
         ...body,
-        status: 'pending' as const,
-        userId: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        userId: '1', // Default user for now
       }
+
+      const result = await db.insert(quests).values(newQuest).returning()
+      console.log({ result })
+      return result[0]
     },
     {
       body: CreateQuestSchema,
@@ -163,16 +227,15 @@ const app = new Elysia()
 
   .put(
     '/quests/:id',
-    ({ params: { id }, body }) => {
-      return {
-        id,
-        title: body.title || 'Updated Quest',
-        description: body.description || 'Updated description',
-        status: body.status || ('pending' as const),
-        userId: '1',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      }
+    async ({ params: { id }, body }) => {
+      const result = await db
+        .update(quests)
+        .set({ ...body, updatedAt: new Date() })
+        .where(eq(quests.id, id))
+        .returning()
+
+      console.log({ result })
+      return result[0] || { error: 'Quest not found' }
     },
     {
       params: t.Object({
@@ -185,8 +248,13 @@ const app = new Elysia()
 
   .delete(
     '/quests/:id',
-    ({ params: { id } }) => {
-      return { success: true, message: `Quest ${id} deleted` }
+    async ({ params: { id } }) => {
+      const result = await db.delete(quests).where(eq(quests.id, id)).returning()
+      console.log({ result })
+      return {
+        success: result.length > 0,
+        message: result.length > 0 ? `Quest ${id} deleted` : 'Quest not found',
+      }
     },
     {
       params: t.Object({

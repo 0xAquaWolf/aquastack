@@ -14,6 +14,7 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
+    "@elysiajs/eden": "1.4.1",
     "@svq/api": "workspace:*",
     "@svq/shared": "workspace:*",
     "@svq/ui": "workspace:*",
