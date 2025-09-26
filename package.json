@@ -19,7 +19,6 @@
     "build:web": "turbo run build --filter=@svq/web",
     "dev:mobile": "turbo run dev --filter=@svq/mobile",
     "dev:web": "turbo run dev --filter=@svq/web",
-    "dev:api": "turbo run dev --filter=@svq/api",
     "dev:ui": "turbo run dev --filter=@svq/ui",
     "lint:web": "turbo run lint --filter=@svq/web",
     "lint:mobile": "turbo run lint --filter=@svq/mobile",
@@ -27,8 +26,7 @@
     "lint:shared": "turbo run lint --filter=@svq/shared",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "prepare": "simple-git-hooks"
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "react": "19.1.0",
@@ -46,10 +44,8 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-react": "7.37.5",
     "eslint-plugin-react-refresh": "0.4.22",
-    "lint-staged": "15.5.2",
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "0.5.14",
-    "simple-git-hooks": "2.13.1",
     "typescript": "5.9.2",
     "typescript-eslint": "8.44.1"
   },
@@ -60,12 +56,5 @@
       "react-native": "0.79.5",
       "react-native-web": "^0.20.0"
     }
-  },
-  "simple-git-hooks": {
-    "pre-commit": "pnpm lint-staged"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["eslint --fix"],
-    "*.{json,jsonc,yml,yaml,toml}": ["prettier --write"]
   }
 }

@@ -6,7 +6,6 @@
   "types": "./index.ts",
   "dependencies": {
     "@elysiajs/eden": "1.4.1",
-    "@svq/api": "workspace:*",
     "@tanstack/react-query": "5.90.2",
     "better-auth": "1.3.16"
   },

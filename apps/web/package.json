@@ -1,45 +1,29 @@
 {
   "name": "@svq/web",
+  "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "vite --port 3000",
-    "start": "vite --port 3000",
-    "build": "vite build && tsc",
-    "serve": "vite preview",
-    "test": "vitest run",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "dev": "next dev --turbopack",
+    "build": "next build --turbopack",
+    "start": "next start",
+    "lint": "eslint"
   },
   "dependencies": {
-    "@elysiajs/eden": "1.4.1",
-    "@svq/api": "workspace:*",
+    "react": "19.1.0",
+    "react-dom": "19.1.0",
+    "next": "15.5.4",
     "@svq/shared": "workspace:*",
-    "@svq/ui": "workspace:*",
-    "@tailwindcss/vite": "^4.0.6",
-    "@tanstack/react-devtools": "^0.2.2",
-    "@tanstack/react-router": "^1.132.0",
-    "@tanstack/react-router-devtools": "^1.132.0",
-    "@tanstack/router-plugin": "^1.132.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.6"
+    "@svq/ui": "workspace:*"
   },
   "devDependencies": {
-    "@tanstack/eslint-config": "^0.3.0",
-    "@testing-library/dom": "^10.4.0",
-    "@testing-library/react": "^16.2.0",
-    "@types/node": "^22.10.2",
-    "@types/react": "^19.0.8",
-    "@types/react-dom": "^19.0.3",
-    "@vitejs/plugin-react": "^4.3.4",
-    "jsdom": "^26.0.0",
-    "prettier": "^3.5.3",
-    "typescript": "^5.7.2",
-    "vite": "^6.3.5",
-    "vitest": "^3.0.5",
-    "web-vitals": "^4.2.4"
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.4",
+    "@eslint/eslintrc": "^3"
   }
 }

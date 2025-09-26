@@ -18,7 +18,6 @@
   "dependencies": {
     "@expo/vector-icons": "14.1.0",
     "@react-navigation/native": "7.1.17",
-    "@svq/api": "workspace:*",
     "@svq/shared": "workspace:*",
     "@tanstack/react-query": "5.90.2",
     "@tanstack/react-query-devtools": "5.90.2",
