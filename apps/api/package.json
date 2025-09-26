@@ -17,12 +17,11 @@
   },
   "dependencies": {
     "@elysiajs/cors": "1.4.0",
-    "better-sqlite3": "12.4.1",
+    "@libsql/client": "^0.15.15",
     "drizzle-orm": "0.44.5",
     "elysia": "1.4.7"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "7.6.13",
     "bun-types": "1.2.22",
     "drizzle-kit": "0.31.4"
   }
