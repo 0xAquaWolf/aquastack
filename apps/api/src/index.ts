@@ -95,6 +95,7 @@ const app = new Elysia()
   .get(
     '/quests',
     () => {
+      console.log('quest data requested')
       return [
         {
           id: '1',

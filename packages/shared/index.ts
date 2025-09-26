@@ -1,50 +1,18 @@
-// Re-export API types and Eden Treaty client
-export * from './src/api'
-export * from './src/client'
-export * from './src/hooks/useApi'
+import type { App } from '@svq/api'
+import { createApiClient } from './src/client'
 
-// Re-export better-auth types
-export * from 'better-auth'
+// Re-export API types
+export type { App }
 
-// Shared utility types
-export interface ApiResponse<T> {
-  data: T
-  success: boolean
-  message?: string
-}
+// Export Eden Treaty client factory and types
+export { createApiClient }
+export type { ApiClient } from './src/client'
 
-export interface ApiError {
-  message: string
-  code?: string
-  details?: any
-}
+// Export configured default client
+export const apiClient = createApiClient()
 
-// Shared app types
-export interface User {
-  id: string
-  name: string
-  email: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-export interface Quest {
-  id: string
-  title: string
-  description: string
-  status: 'pending' | 'in_progress' | 'completed'
-  userId: string
-  createdAt: Date
-  updatedAt: Date
-}
-
-export interface CreateQuest {
-  title: string
-  description: string
-}
-
-export interface UpdateQuest {
-  title?: string
-  description?: string
-  status?: 'pending' | 'in_progress' | 'completed'
-}
+// Export inferred types for convenience
+export type User = Awaited<ReturnType<typeof apiClient.users.get>>['data']
+export type Quest = Awaited<ReturnType<typeof apiClient.quests.get>>['data']
+export type CreateQuest = Parameters<typeof apiClient.quests.post>[0]
+export type UpdateQuest = Parameters<typeof apiClient.quests[string]['put']>[0]

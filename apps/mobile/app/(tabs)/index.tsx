@@ -1,7 +1,17 @@
+import { apiClient } from '@svq/shared'
 import { Stack } from 'expo-router'
+import { useEffect } from 'react'
 import { Text, View } from 'react-native'
 
 export default function Home() {
+  useEffect(() => {
+    async function getData() {
+      const { data } = await apiClient.quests.get()
+      console.log({ data })
+      return data
+    }
+    getData()
+  }, [])
   return (
     <>
       <Stack.Screen options={{ title: 'Home' }} />

@@ -20,7 +20,7 @@ export default antfu(
   {
     // Override rules for the project
     rules: {
-      'no-console': 'warn',
+      'no-console': 'off',
       'react/display-name': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',

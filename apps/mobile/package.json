@@ -1,7 +1,6 @@
 {
   "name": "@svq/mobile",
   "version": "1.0.0",
-  "type": "module",
   "private": true,
   "main": "expo-router/entry",
   "scripts": {
