@@ -68,7 +68,7 @@ importers:
         version: 8.44.1(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2)
 
   apps/convex:
-    devDependencies:
+    dependencies:
       convex:
         specifier: ^1.27.3
         version: 1.27.3(react@19.1.0)

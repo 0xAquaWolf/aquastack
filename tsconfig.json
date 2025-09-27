@@ -7,9 +7,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "@svq/*": ["packages/*/src", "packages/*"],
-      "@svq/convex": ["./packages/convex/src"],
-      "@svq/convex/*": ["./packages/convex/src/*"]
+      "@svq/*": ["packages/*/src", "packages/*"]
     },
     "resolveJsonModule": true,
     "allowJs": true,
