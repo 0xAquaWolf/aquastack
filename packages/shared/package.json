@@ -5,9 +5,7 @@
   "main": "./index.ts",
   "types": "./index.ts",
   "dependencies": {
-    "@elysiajs/eden": "1.4.1",
-    "@tanstack/react-query": "5.90.2",
-    "better-auth": "1.3.16"
+    "@svq/convex": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.8.3"

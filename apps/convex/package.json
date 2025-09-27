@@ -1,0 +1,18 @@
+{
+  "name": "@svq/convex",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx convex dev",
+    "deploy": "npx convex deploy",
+    "dashboard": "npx convex dashboard"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "convex": "^1.27.3"
+  }
+}
