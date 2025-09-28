@@ -7,7 +7,12 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "@svq/*": ["packages/*/src", "packages/*"]
+      "@svq/*": [
+        "packages/*/src",
+        "packages/*",
+        "apps/*/src",
+        "apps/*"
+      ]
     },
     "resolveJsonModule": true,
     "allowJs": true,

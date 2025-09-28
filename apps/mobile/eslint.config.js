@@ -55,6 +55,7 @@ export default antfu(
       'react-dom/no-dangerously-set-innerhtml': 'off',
       'react-refresh/only-export-components': 'off',
       'perfectionist/sort-imports': 'off',
+      'node/prefer-global/process': 'off',
     },
   },
 )
