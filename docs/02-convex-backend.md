@@ -172,7 +172,7 @@ Frontend apps automatically subscribe to data changes:
 ```typescript
 // Web app
 import { useQuery } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "@svq/convex";
 
 function PostsList() {
   const posts = useQuery(api.posts.getPosts, { limit: 10 });
@@ -205,30 +205,32 @@ npx convex run    # Run a function
 
 ## Integration with Frontend
 
-### Web App (Vite + React)
+### Web App (Next.js)
 ```typescript
-// apps/web/src/main.tsx
+// apps/web/src/app/ConvexClientProvider.tsx
+"use client";
+
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { api } from "../convex/_generated/api";
+import { ReactNode } from "react";
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL);
+const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+});
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>
-    <ConvexProvider client={convex}>
-      <App />
-    </ConvexProvider>
-  </React.StrictMode>
-);
+export function ConvexClientProvider({ children }: { children: ReactNode }) {
+  return <ConvexProvider client={convex}>{children}</ConvexProvider>;
+}
 ```
 
 ### Mobile App (Expo)
 ```typescript
 // apps/mobile/app/_layout.tsx
 import { ConvexProvider, ConvexReactClient } from "convex/react";
-import { api } from "../../convex/_generated/api";
+import { api } from "@svq/convex";
 
-const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!);
+const convex = new ConvexReactClient(process.env.EXPO_PUBLIC_CONVEX_URL!, {
+  unsavedChangesWarning: false,
+});
 
 export default function RootLayout() {
   return (

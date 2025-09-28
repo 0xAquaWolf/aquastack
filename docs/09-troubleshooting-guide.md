@@ -1,529 +1,139 @@
 # Troubleshooting Guide
 
-This document provides solutions to common issues when working with the Elysia integration in the SelfVision Quest monorepo.
+This guide highlights common issues encountered while working with the Convex + Better Auth stack in SelfVision Quest, along with quick fixes and diagnostic tips.
 
 ## Quick Reference
 
-| Issue | Solution | Command |
-|-------|----------|---------|
-| Port conflicts | Kill processes on ports 3333, 3000, 8081 | `lsof -i :3333` |
-| TypeScript errors | Clean install and rebuild | `rm -rf node_modules && pnpm install` |
-| Mobile app won't start | Clear Expo cache | `expo r -c` |
-| CORS errors | Ensure API server is running | Check `localhost:3333` |
-| Build failures | Check TypeScript compilation | `pnpm build` |
-| Type errors | Verify type exports | Check shared package |
+| Issue | Fast Fix | Command / Action |
+| --- | --- | --- |
+| Convex types stale | Regenerate types | `pnpm --filter @svq/convex dev` or `pnpm build` |
+| Clients can’t fetch data | Confirm Convex URL + dev server | Check `NEXT_PUBLIC_CONVEX_URL`, `EXPO_PUBLIC_CONVEX_URL`, ensure Convex dev server is running |
+| Expo stuck loading | Clear Metro cache | `expo r -c` |
+| Lint/build failures | Clean install | `rm -rf node_modules pnpm-lock.yaml && pnpm install` |
+| Port already in use | Kill offending process | `lsof -i :3000` / `lsof -i :8081` then `kill -9 <pid>` |
 
-## Common Issues and Solutions
+## Convex & Type Generation
 
-### 1. Port Conflicts
+### Symptoms
+- TypeScript errors referencing `convex/_generated`
+- Imports like `api.tasks.get` resolve to `any`
+- `Doc<"table">` results in `never`
 
-**Symptoms:**
-- Error messages like "Port 3333 is already in use"
-- Services failing to start
-
-**Solutions:**
-
+### Solutions
 ```bash
-# Find processes using ports
-lsof -i :3333  # API server
-lsof -i :3000  # Web app
-lsof -i :8081  # Mobile app (Expo)
+# Ensure Convex dev server is running
+pnpm --filter @svq/convex dev
 
-# Kill specific processes
-kill -9 <pid>
-
-# Kill all Node.js processes
-pkill -f "node"
-
-# Alternative: Use different ports
-# For API server (edit apps/api/src/index.ts)
-.listen(3334)
-
-# For web app (create .env.local)
-NEXT_PUBLIC_API_URL=http://localhost:3334
-```
-
-### 2. TypeScript Compilation Errors
-
-**Symptoms:**
-- `pnpm build` fails with TypeScript errors
-- Type "property does not exist on type" errors
-- Cannot find module errors
-
-**Solutions:**
-
-```bash
-# Clean install and rebuild
-rm -rf node_modules pnpm-lock.yaml
-pnpm install
+# Or run a full build to regenerate types
 pnpm build
 
-# Check for circular dependencies
-# Look for import cycles between packages
-
-# Verify type exports
-# Check packages/shared/index.ts for proper exports
-
-# Restart TypeScript server in IDE
-# VS Code: Ctrl+Shift+P → "TypeScript: Restart TS Server"
-
-# Clear turborepo cache
-rm -rf .turbo
-pnpm build
+# If schema files moved, delete stale outputs then rebuild
+rm -rf apps/convex/convex/_generated
+pnpm --filter @svq/convex dev
 ```
 
-**Common Type Issues:**
+### Tips
+- Commit `_generated` files so collaborators have the latest types
+- Use `import type` when consuming `Doc` or `Id` to avoid circular runtime dependencies
 
-```typescript
-// ✅ Correct usage
-import type { Quest } from '@svq/shared' // Add this import
+## Convex Connectivity
 
-// ❌ Missing import
-import { Quest } from '@svq/shared' // Should be Quest type
+### Symptoms
+- `useQuery` returns `undefined` forever
+- `convex run` commands fail with `FetchError`
+- Better Auth helper returns `null` unexpectedly
 
-// ❌ Wrong type usage
-const quest: string = getQuest()
-const quest: Quest = getQuest()
-```
+### Checklist
+1. Confirm the Convex dev server is running locally (`pnpm --filter @svq/convex dev`)
+2. Verify environment variables:
+   - `apps/web/.env.local`: `NEXT_PUBLIC_CONVEX_URL`
+   - `apps/mobile` Expo config: `EXPO_PUBLIC_CONVEX_URL`
+3. If targeting a deployed instance, ensure you copied the deployment URL from the Convex dashboard
+4. For auth helpers, run commands via the dashboard or with an authenticated session; anonymous calls return `null`
 
-### 3. Mobile App Issues
+## Better Auth Integration
 
-**Symptoms:**
-- Mobile app won't start in Expo
-- White screen or errors in mobile app
-- Metro bundler issues
+### Symptoms
+- Login callbacks fail
+- `auth:getCurrentUser` always `null`
+- Convex logs mention missing `SITE_URL`
 
-**Solutions:**
+### Resolutions
+- Set `SITE_URL` (and other Better Auth secrets) in Convex environment variables (`npx convex env set SITE_URL <url>`)
+- Ensure `apps/convex/convex/auth.config.ts` exports the correct domain configuration
+- When testing locally, use the same origin in both the web app and Convex configuration to avoid cookie issues
 
+## Expo / React Native Issues
+
+### Common Fixes
 ```bash
-# Clear Expo cache
-expo r -c
+expo r -c                     # Clear Metro cache
+pnpm --filter @svq/mobile dev # Restart dev server
 
-# Clear npm cache in mobile app
-cd apps/mobile
-rm -rf node_modules package-lock.json
-npm install
-# Or use pnpm if configured
-rm -rf node_modules
-pnpm install
-
-# Reset simulators
-# iOS: Simulator → Device → Erase All Content and Settings
-# Android: AVD Manager → Wipe Data
-
-# Check for incompatible dependencies
-npm outdated
-npm update
-```
-
-**Expo Development Server Issues:**
-
-```bash
-# Start fresh Expo session
-cd apps/mobile
-expo start --clear
-
-# Try different platform
-expo start --web    # Web version
-expo start --ios    # iOS simulator
-expo start --android # Android emulator
-```
-
-### 4. CORS Issues
-
-**Symptoms:**
-- API calls blocked by browser
-- "No 'Access-Control-Allow-Origin' header" errors
-- Network requests failing in browser console
-
-**Solutions:**
-
-```bash
-# Ensure API server is running
-cd apps/api && pnpm dev
-
-# Check CORS configuration
-# Verify apps/api/src/index.ts has:
-.use(cors({
-  origin: true,
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-}))
-
-# Test CORS headers
-curl -H "Origin: http://localhost:3000" -I http://localhost:3333/quests
-```
-
-**Frontend Solutions:**
-
-```javascript
-// In apps/web/src/lib/api.ts
-// Ensure correct API URL
-export const apiClient = createApiClient(
-  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3333'
-);
-
-// In apps/mobile/store/api.ts
-// Ensure correct API URL
-const apiClient = createApiClient(
-  Constants?.expoConfig?.extra?.apiUrl || 'http://localhost:3333'
-);
-```
-
-### 5. API Server Issues
-
-**Symptoms:**
-- API server won't start
-- "Cannot find module" errors
-- Port already in use errors
-
-**Solutions:**
-
-```bash
-# Check dependencies
-cd apps/api
-npm install
-# or
-pnpm install
-
-# Check for syntax errors
-pnpm build
-
-# Start with debugging
-pnpm dev --inspect-brk
-
-# Check logs for specific errors
-```
-
-**Common API Issues:**
-
-```typescript
-// ❌ Missing import
-import { Elysia, t } from 'elysia' // Add this
-
-// ❌ Incorrect schema definition
-const QuestSchema = t.Object({
-  status: t.Enum(['pending', 'in_progress', 'completed']), // Use Union instead
-})
-
-// ✅ Correct schema definition
-const QuestSchema = t.Object({
-  status: t.Union([
-    t.Literal('pending'),
-    t.Literal('in_progress'),
-    t.Literal('completed'),
-  ]),
-})
-```
-
-### 6. React Query Issues (Web App)
-
-**Symptoms:**
-- Data not loading
-- Stale data being displayed
-- Mutation issues
-
-**Solutions:**
-
-```bash
-# Check React Query dev tools
-# Install if not present:
-npm install @tanstack/react-query-devtools
-
-# Add to app:
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-// In providers.tsx: <ReactQueryDevtools initialIsOpen={false} />
-```
-
-**Common React Query Issues:**
-
-```typescript
-// ❌ Incorrect query key usage
-useQuery(['quest'], () => apiClient.quests.get()) // Should be 'quests'
-
-// ❌ Missing query function
-useQuery(['quests']) // Missing queryFn
-
-// ✅ Correct usage
-useQuery({
-  queryKey: ['quests'],
-  queryFn: async () => {
-    const response = await apiClient.quests.get()
-    return response.data
-  },
-})
-```
-
-### 7. Zustand Issues (Mobile App)
-
-**Symptoms:**
-- State not updating
-- Actions not working
-- Type errors in store
-
-**Solutions:**
-
-```typescript
-import type { CreateQuest, Quest, UpdateQuest, User } from '@svq/shared'
-
-// ❌ Incorrect store setup
-import { create } from 'zustand'
-// ✅ Correct store setup
-import { create } from 'zustand'
-
-// ❌ Missing async/await
-createQuest: (quest: CreateQuest) => {
-  apiClient.quests.post(quest) // Missing await
-}
-
-// ✅ Correct async/await
-createQuest: async (quest: CreateQuest) => {
-  try {
-    const response = await apiClient.quests.post(quest)
-    set(state => ({
-      quests: [...state.quests, response.data],
-      loading: false,
-    }))
-  }
-  catch {
-    set({ error: 'Failed to create quest', loading: false })
-  }
-}
-```
-
-### 8. Build and Deployment Issues
-
-**Symptoms:**
-- Production builds failing
-- Missing dependencies in production
-- Environment variables not working
-
-**Solutions:**
-
-```bash
-# Check build process
-cd apps/web && pnpm build
-cd apps/mobile && pnpm build
-cd apps/api && pnpm build
-
-# Check environment variables
-# apps/web/.env.production
-NEXT_PUBLIC_API_URL=https://your-api-url.com
-
-# apps/mobile/app.json
-{
-  "expo": {
-    "extra": {
-      "apiUrl": "https://your-api-url.com"
-    }
-  }
-}
-
-# Check deployment logs for specific errors
-```
-
-### 9. Eden Treaty Issues
-
-**Symptoms:**
-- Type safety not working
-- API methods not showing in autocompletion
-- Type errors with API calls
-
-**Solutions:**
-
-```typescript
-import type { App } from '@svq/api'
-// ❌ Missing type import
-import { edenTreaty } from '@elysiajs/eden'
-
-// ✅ Correct type import
-import { edenTreaty } from '@elysiajs/eden'
-import App from '@svq/api' // Should be type import
-
-// ❌ Incorrect client usage
-const api = edenTreaty<App>('http://localhost:3333')
-api.get('/quests') // Should use api.quests.get()
-
-// ✅ Correct client usage
-const api = edenTreaty<App>('http://localhost:3333')
-api.quests.get()
-```
-
-### 10. Mobile App Build Issues
-
-**Symptoms:**
-- iOS/Android builds failing
-- Code signing issues
-- Missing native dependencies
-
-**Solutions:**
-
-```bash
-# Check Expo configuration
-cd apps/mobile
-expo diagnostics
-
-# Update Expo SDK if needed
-expo update
-
-# Check for incompatible packages
-npm install --save expo@latest
-
-# Clear native build cache
+# If native builds break
+expo prebuild --clean
 cd ios && pod install && cd ..
 cd android && ./gradlew clean && cd ..
-
-# Try eas build for production
-eas build --platform all
 ```
 
-## Debugging Tools and Techniques
+### Tips
+- Keep the Expo CLI output running; it reports missing env vars and dependency mismatches
+- When adding native modules, re-run `expo prebuild`
+- If the QR code session keeps expiring, log into Expo (`npx expo login`)
 
-### 1. API Debugging
+## Next.js / Web Client Issues
 
+### Symptoms
+- Blank page or hydration errors
+- Network tab shows 401/404 from Convex
+- Tailwind styles missing
+
+### Solutions
+- Confirm `ConvexClientProvider` wraps the App Router root in `layout.tsx`
+- Double-check that the `NEXT_PUBLIC_CONVEX_URL` matches the running backend
+- Tailwind v4 uses CSS-in-JS; ensure the dev server is started with `pnpm --filter @svq/web dev` using Turbopack for live updates
+- If using remote Convex, ensure browser devtools aren’t blocking third-party cookies (Better Auth sessions rely on them)
+
+## Turbo / Build Failures
+
+### Symptoms
+- `pnpm build` fails in unrelated packages
+- Turbo caches stale artefacts
+
+### Remedies
 ```bash
-# Test API endpoints
-curl http://localhost:3333/health
-curl http://localhost:3333/quests
-curl -X POST http://localhost:3333/quests -H "Content-Type: application/json" -d '{"title":"test","description":"test"}'
-
-# Use Postman or Insomnia for API testing
-# Set up request collections for different endpoints
+pnpm run clean   # Prunes pnpm store and reinstalls
+rm -rf .turbo    # Clear Turbo cache manually
+pnpm build       # Re-run build
 ```
 
-### 2. Web App Debugging
+If a specific workspace fails, filter the build: `pnpm --filter @svq/web build`.
 
-```javascript
-// Browser console debugging
-console.log('API Response:', response)
-console.log('Error:', error)
+## Lint & Formatting Issues
 
-// React DevTools
-// Check component state and props
-// Monitor React Query cache
+- Align with the repo’s ESLint/Prettier config; avoid installing alternate formatters
+- For Tailwind class ordering, rely on `prettier-plugin-tailwindcss` already configured in the root
+- Run `pnpm lint` before committing to catch cross-workspace issues early
 
-// Network tab
-// Check API request/response
-// Verify CORS headers
-// Check response status codes
-```
+## Performance & Resource Problems
 
-### 3. Mobile App Debugging
+- **Slow Convex dev server**: close unused Turbo processes; each one consumes watchers
+- **High memory usage**: restart Expo/Next.js servers periodically during long sessions
+- **Port conflicts**: `lsof -i :3000` / `lsof -i :8081` and kill stray processes (`kill -9 <pid>`)
 
-```javascript
-// React Native debugging
-console.log('Mobile API Response:', response);
-console.log('Mobile Error:', error);
+## Diagnostics Toolbox
 
-// Expo development tools
-# Open debugger: Ctrl+M (Android) or Cmd+D (iOS)
-# Check console logs
-# Monitor network requests
+- `npx convex run <function>` – execute queries/mutations directly (helpful for confirming arguments and auth)
+- `npx convex dashboard` – inspect database tables, logs, and scheduled functions
+- Browser devtools – monitor network calls to Convex and check for CORS/auth failures
+- Expo dev menu (`⌘D` / `Ctrl+M`) – reload, toggle performance monitors, inspect logs
+- VS Code TypeScript: `Cmd+Shift+P → TypeScript: Restart TS Server` if intellisense seems stale
 
-# Flipper for advanced debugging
-# React Native Debugger
-```
+## Preventative Practices
 
-### 4. Type Safety Debugging
+- Keep Convex running during development so typegen stays current
+- Update shared packages (`@svq/shared`, `@svq/ui`) whenever domain types change
+- Verify environment variables in both Convex dashboard and local `.env` files before deployments
+- Run `pnpm lint` and `pnpm build` prior to PRs to catch integration issues early
 
-```typescript
-// TypeScript debugging
-// Use VS Code Go to Definition (F12)
-// Check type annotations with hover
-// Use TypeScript playground for complex types
-
-// Type checking in IDE
-// Look for red squiggles
-// Check Problems panel in VS Code
-// Use TypeScript compiler directly: tsc --noEmit
-```
-
-## Performance Issues
-
-### 1. Slow Development Server
-
-```bash
-# Use Turbopack for faster builds
-cd apps/web && pnpm dev --turbo
-
-# Clear unnecessary caches
-rm -rf .next
-rm -rf .turbo
-rm -rf node_modules/.cache
-```
-
-### 2. Memory Issues
-
-```bash
-# Check memory usage
-npm install -g memory-usage
-memory-usage
-
-# Restart development servers
-# Kill and restart processes if memory is high
-```
-
-### 3. Network Performance
-
-```bash
-# Check API response times
-curl -w "@curl-format.txt" -o /dev/null -s http://localhost:3333/quests
-
-# Monitor network requests in browser dev tools
-# Look for large payloads or unnecessary requests
-```
-
-## Getting Help
-
-### 1. Error Message Analysis
-
-```bash
-# Extract key information from error messages
-# Look for:
-# - File names and line numbers
-# - Type names and property names
-# - Stack traces
-# - Network status codes
-
-# Search for specific errors online
-# Include technology names: "Elysia", "Eden Treaty", "React Query"
-```
-
-### 2. Community Resources
-
-- ElysiaJS Discord: https://discord.gg/elysia
-- React Query GitHub: https://github.com/TanStack/query
-- Expo Forums: https://forums.expo.dev
-- Stack Overflow with specific tags
-
-### 3. Documentation References
-
-- ElysiaJS: https://elysiajs.com
-- Eden Treaty: https://github.com/elysiajs/eden
-- React Query: https://tanstack.com/query/latest
-- Expo: https://docs.expo.dev
-
-## Prevention Tips
-
-### 1. Development Practices
-
-- Run `pnpm build` frequently to catch type errors early
-- Test API endpoints with curl before using in frontend
-- Keep dependencies updated but stable
-- Use consistent import paths and type exports
-
-### 2. Code Quality
-
-- Use linting and formatting tools
-- Write tests for critical functionality
-- Document complex type definitions
-- Use meaningful variable and function names
-
-### 3. Environment Management
-
-- Use environment variables for configuration
-- Keep development and production environments separate
-- Document environment setup requirements
-- Use version control for configuration files
-
-This troubleshooting guide should help you resolve most common issues when working with the Elysia integration. Remember to check the logs, use debugging tools, and work systematically through potential causes.
+By following these diagnostics and habits you can quickly resolve the most common issues while working on the Convex-powered SelfVision Quest stack.

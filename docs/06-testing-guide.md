@@ -1,441 +1,148 @@
 # Testing Guide
 
-This document provides comprehensive testing instructions for the Elysia integration across the SelfVision Quest monorepo.
+This guide describes how to validate the SelfVision Quest stack after the move to Convex and Better Auth. It focuses on verifying Convex functions, the Next.js web client, the Expo mobile client, cross-platform behaviour, and type safety.
 
 ## Testing Overview
 
-The testing strategy covers:
-- API server endpoint testing
-- Web app functionality testing
-- Mobile app cross-platform testing
-- End-to-end integration testing
-- Type safety verification
+- Convex backend and Better Auth configuration
+- Web client behaviour (Next.js 15 + Convex React hooks)
+- Mobile client behaviour (Expo Router + Zustand)
+- Cross-platform real-time updates
+- Type generation and TypeScript checks across workspaces
 
 ## Prerequisites
 
-Before testing, ensure all dependencies are installed:
-
 ```bash
-# Install all dependencies
+# Install workspace dependencies
 pnpm install
+
+# Ensure Convex CLI is available (installed automatically with dependencies)
+npx convex --help
 ```
 
-## 1. API Server Testing
+## 1. Convex Backend Testing
 
-### Starting the API Server
+### Start the Convex Dev Server
 
 ```bash
-cd apps/api
+cd apps/convex
 pnpm dev
 ```
 
-The server should start on `http://localhost:3333` with the message:
-```
-🦊 Elysia is running at localhost:3333
-```
+This launches the local Convex dev server (default API URL `http://localhost:3010`) and keeps generated types in `convex/_generated` up to date. Leave this process running while testing web or mobile clients.
 
-### Testing API Endpoints
+### Run Convex Functions from the CLI
 
-#### Health Check
-```bash
-curl http://localhost:3333/
-```
-Expected response:
-```json
-"SelfVision Quest API is running"
-```
-
-#### Get All Quests
-```bash
-curl http://localhost:3333/quests
-```
-Expected response:
-```json
-[
-  {
-    "id": "1",
-    "title": "Complete API Integration",
-    "description": "Integrate Elysia API with web and mobile apps",
-    "status": "in_progress",
-    "userId": "1",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  },
-  {
-    "id": "2",
-    "title": "Set up Type Safety",
-    "description": "Ensure end-to-end type safety with Eden Treaty",
-    "status": "pending",
-    "userId": "1",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
-]
-```
-
-#### Create New Quest
-```bash
-curl -X POST http://localhost:3333/quests \
-  -H "Content-Type: application/json" \
-  -d '{"title":"Test Quest","description":"Testing the API integration"}'
-```
-Expected response:
-```json
-{
-  "id": "generated-id",
-  "title": "Test Quest",
-  "description": "Testing the API integration",
-  "status": "pending",
-  "userId": "1",
-  "createdAt": "2024-01-01T00:00:00.000Z",
-  "updatedAt": "2024-01-01T00:00:00.000Z"
-}
-```
-
-#### Delete Quest
-```bash
-curl -X DELETE http://localhost:3333/quests/{quest-id}
-```
-Expected response:
-```json
-{
-  "success": true,
-  "message": "Quest {quest-id} deleted"
-}
-```
-
-### CORS Testing
-
-Test that CORS headers are properly set:
+With the dev server running, use the Convex CLI to execute queries, mutations, or actions:
 
 ```bash
-curl -H "Origin: http://localhost:3000" -I http://localhost:3333/quests
+# Fetch all tasks (matches apps/convex/convex/tasks.ts)
+npx convex run tasks:get
+
+# Inspect Better Auth helper (requires an authenticated identity when applicable)
+npx convex run auth:getCurrentUser
 ```
 
-Should include CORS headers like:
-```
-Access-Control-Allow-Origin: *
-Access-Control-Allow-Methods: GET, POST, PUT, DELETE
-Access-Control-Allow-Headers: Content-Type, Authorization
-```
+Expected results:
+- `tasks:get` returns an array of task documents (empty array if no data present)
+- `auth:getCurrentUser` returns `null` unless called with an authenticated identity (e.g., via the dashboard or server-side functions)
 
-## 2. Web App Testing
+### Seed or Inspect Data
 
-### Starting the Web App
+- Load `apps/convex/sampleData.jsonl` through the Convex dashboard or CLI if you need demo entries.
+- Use `npx convex dashboard` to open the Convex dashboard for inspecting tables, storage, and logs.
+
+## 2. Web App Testing (Next.js)
+
+### Start the Web Client
 
 ```bash
-# In a new terminal
 cd apps/web
 pnpm dev
 ```
 
-The app should start on `http://localhost:3000`.
+The site runs on `http://localhost:3000`. Ensure `NEXT_PUBLIC_CONVEX_URL` in `.env.local` points to either your local dev server (`http://localhost:3010`) or a deployed Convex instance.
 
-### Manual Testing Steps
+### Manual Test Flow
 
-1. **Initial Load**
-   - Navigate to `http://localhost:3000`
-   - Should see "SelfVision Quest" title
-   - Should see sample quests loaded from API
-   - Loading state should be brief
+1. **Initial Load** – Visit `http://localhost:3000`; the page should render without console errors. If tasks exist, they appear immediately via `useQuery` subscriptions.
+2. **Real-time Updates** – While the page is open, insert or modify tasks through the Convex CLI or dashboard. The list should update without a manual refresh.
+3. **Error Handling** – Stop the Convex dev server and refresh the page; the UI should surface a loading or error state. Restart Convex and verify recovery.
 
-2. **Create Quest**
-   - Fill in "Quest Title" and "Quest Description" fields
-   - Click "Create Quest" button
-   - New quest should appear in the list below
-   - Form should reset after successful creation
+### Browser Tooling
 
-3. **Delete Quest**
-   - Click "Delete" button on any quest
-   - Quest should be removed from the list
-   - No confirmation needed in web app (could be added)
+- Use the React DevTools and Convex DevTools overlay (available when the dev server prints the local dashboard URL) to inspect subscriptions.
+- Check the Network tab to confirm requests go to the configured Convex deployment.
 
-4. **Error Handling**
-   - Stop the API server
-   - Try to create a quest
-   - Should see error message
-   - Restart API server
-   - Should recover automatically
+## 3. Mobile App Testing (Expo)
 
-### Browser Dev Tools Testing
-
-1. **Network Tab**
-   - Open Chrome Dev Tools (F12)
-   - Go to Network tab
-   - Create/delete quests
-   - Verify API calls are made to correct endpoints
-   - Check response codes (should be 200 for success)
-
-2. **Console Testing**
-   - Check for any JavaScript errors
-   - Verify React Query is working correctly
-   - Check for any TypeScript compilation errors
-
-3. **Type Safety Testing**
-   - Open any TypeScript file in IDE
-   - Try accessing non-existent properties
-   - Should show TypeScript errors
-   - Check autocompletion for API methods
-
-## 3. Mobile App Testing
-
-### Starting the Mobile App
+### Start the Expo Dev Server
 
 ```bash
-# In a new terminal
 cd apps/mobile
 pnpm dev
 ```
 
-### Testing Options
+From the interactive prompt choose:
+- `w` for the web preview (`http://localhost:8081`)
+- `i` / `a` to launch iOS Simulator or Android Emulator (requires native tooling)
+- Scan the QR code with Expo Go for physical devices
 
-#### Web Version (Quickest)
-```bash
-# After starting dev server, press 'w'
-```
-Opens in browser at `http://localhost:8081`
+Ensure `EXPO_PUBLIC_CONVEX_URL` in `apps/mobile/.env` or `app.config` targets the same Convex instance as the web client.
 
-#### iOS Simulator
-```bash
-# Requires Xcode
-pnpm ios
-```
+### Manual Test Flow
 
-#### Android Emulator
-```bash
-# Requires Android Studio
-pnpm android
-```
+1. **Initial Load** – Confirm the task list renders and matches the web client.
+2. **Live Updates** – Add or modify records via Convex CLI/dashboard and verify the UI updates in near real time.
+3. **Offline/Error States** – Stop Convex and navigate around the app; you should see loading indicators or empty states instead of crashes. Restart Convex to confirm automatic recovery.
 
-#### Physical Device
-1. Install Expo Go app on your phone
-2. Scan QR code from terminal
-3. Open in Expo Go
+### Mobile Debugging Tips
 
-### Manual Testing Steps
+- Enable Expo developer menu (`⌘D` on iOS simulator / `Ctrl+M` on Android) to reload and inspect logs.
+- If Metro caching causes stale data, run `expo r -c`.
 
-1. **Initial Load**
-   - App should open to "Quests" tab
-   - Should show loading indicator briefly
-   - Should display sample quests from API
+## 4. Cross-Platform Integration
 
-2. **Create Quest**
-   - Fill in title and description fields
-   - Tap "Create Quest" button
-   - Should show loading state
-   - New quest should appear in list
-   - Form fields should reset
+1. Keep both clients running against the same Convex deployment.
+2. Insert documents from one channel (e.g., Convex dashboard or CLI) and confirm the other reflects changes immediately.
+3. Validate authentication flows once Better Auth UI is wired in: sign in on one client and ensure session state propagates to Convex (visible via `auth:getCurrentUser`).
 
-3. **Delete Quest**
-   - Tap "Delete" button on any quest
-   - Should show confirmation dialog
-   - Tap "Delete" to confirm
-   - Quest should be removed from list
-   - Tap "Cancel" to abort
+## 5. Type Safety Verification
 
-4. **Error States**
-   - Stop API server
-   - Try to create quest
-   - Should show error alert
-   - Restart API server
-   - Should recover automatically
-
-### Cross-Platform Testing
-
-1. **Web Version**
-   - Test in Chrome/Safari
-   - Verify responsive design
-   - Check touch interactions
-
-2. **iOS Simulator**
-   - Test native iOS components
-   - Verify navigation gestures
-   - Check orientation changes
-
-3. **Android Emulator**
-   - Test native Android components
-   - Verify back button behavior
-   - Check different screen sizes
-
-## 4. End-to-End Integration Testing
-
-### Cross-Platform Data Sync
-
-1. **Create in Web, View in Mobile**
-   - Create quest in web app (`http://localhost:3000`)
-   - Refresh mobile app
-   - Verify quest appears in mobile app
-
-2. **Create in Mobile, View in Web**
-   - Create quest in mobile app
-   - Refresh web app
-   - Verify quest appears in web app
-
-3. **Delete in Either Platform**
-   - Delete quest in web app
-   - Refresh mobile app
-   - Verify quest is gone from both
-   - Repeat with mobile app deletion
-
-### Consistency Testing
-
-1. **Type Consistency**
-   - Verify same quest structure in both apps
-   - Check status display consistency
-   - Verify timestamp formats
-
-2. **Behavioral Consistency**
-   - Test create/delete workflows in both apps
-   - Verify error handling consistency
-   - Check loading state behavior
-
-## 5. Type Safety Testing
-
-### TypeScript Compilation
+### Regenerate Types and Check Compilation
 
 ```bash
-# Test all packages
-cd /Users/0xaquawolf/Projects/selfvision-quest
+# From repo root
 pnpm build
+
+# Optionally trigger just type checks
+pnpm type-check
 ```
 
-Should succeed without errors.
+This runs the Turbo pipeline, which in turn invokes Convex type generation and TypeScript build steps for affected packages. The build should succeed without diagnostics.
 
-### Type Checking
+### Spot-check in the IDE
 
-```bash
-# Check individual packages
-cd apps/api && pnpm build
-cd apps/web && pnpm build
-cd apps/mobile && pnpm lint
-```
+1. Open a Convex-generated type (e.g., `apps/convex/convex/_generated/api.ts`) and confirm new functions appear after edits.
+2. In `apps/web/src/app/page.tsx`, attempt to access a non-existent field on a task; TypeScript should highlight the error.
+3. Repeat in the Expo app (e.g., `apps/mobile/app/(tabs)/index.tsx` once data hooks are added) to ensure identical typings.
 
-### IDE Type Safety Verification
+## 6. Common Issues
 
-1. **API Types in Web App**
-   - Open `apps/web/src/hooks/useApi.ts`
-   - Try `apiClient.nonexistentMethod`
-   - Should show TypeScript error
-
-2. **API Types in Mobile App**
-   - Open `apps/mobile/store/api.ts`
-   - Try `apiClient.nonexistentMethod`
-   - Should show TypeScript error
-
-3. **Type Propagation**
-   - Modify API response structure in `apps/api/src/index.ts`
-   - Should break type checking in both frontend apps
-   - Verify compilation fails until fixed
-
-## 6. Performance Testing
-
-### Web App Performance
-
-1. **Loading Speed**
-   - Check initial load time
-   - Verify React Query caching works
-   - Test navigation between pages
-
-2. **API Performance**
-   - Monitor network requests in dev tools
-   - Verify response times are reasonable
-   - Check for unnecessary requests
-
-### Mobile App Performance
-
-1. **Native Performance**
-   - Test scrolling performance
-   - Verify smooth animations
-   - Check memory usage
-
-2. **Bundle Size**
-   - Check JavaScript bundle size
-   - Verify tree-shaking is working
-   - Monitor startup time
-
-## 7. Common Issues and Solutions
-
-### Port Conflicts
-**Issue**: Port 3333 already in use
-**Solution**:
-```bash
-# Find process using port 3333
-lsof -i :3333
-# Kill process or use different port
-```
-
-### CORS Issues
-**Issue**: API calls blocked by CORS
-**Solution**: Ensure API server is running and CORS is configured correctly
-
-### Type Errors
-**Issue**: TypeScript compilation fails
-**Solution**:
-```bash
-# Clean install
-rm -rf node_modules package-lock.json
-pnpm install
-```
-
-### Mobile App Issues
-**Issue**: Mobile app won't start
-**Solution**:
-```bash
-# Clear Expo cache
-expo r -c
-```
-
-## 8. Test Automation Scripts
-
-### Setup Test Environment
-```bash
-# Create test script
-cat > test-integration.sh << 'EOF'
-#!/bin/bash
-
-echo "🧪 Starting Integration Tests"
-
-# Start API server in background
-cd apps/api && pnpm dev &
-API_PID=$!
-
-# Wait for API to start
-sleep 3
-
-# Test API endpoints
-echo "📡 Testing API endpoints..."
-curl -f http://localhost:3333/ || exit 1
-curl -f http://localhost:3333/quests || exit 1
-
-echo "✅ API tests passed"
-
-# Cleanup
-kill $API_PID
-echo "🎉 Integration tests completed"
-EOF
-
-chmod +x test-integration.sh
-```
-
-### Run Integration Tests
-```bash
-./test-integration.sh
-```
+| Symptom | Likely Cause | Fix |
+| --- | --- | --- |
+| `useQuery` never resolves | Convex dev server not running or URL mismatch | Start `pnpm --filter @svq/convex dev` and confirm `NEXT_PUBLIC_CONVEX_URL`/`EXPO_PUBLIC_CONVEX_URL` |
+| Type errors referencing `_generated` files | Convex type generation is stale | Re-run `pnpm --filter @svq/convex dev` or `pnpm build` |
+| Expo shows blank screen | Cached bundle | `expo r -c` |
+| CLI `convex run` fails with auth error | Function requires identity | Use `npx convex dashboard` or call from authenticated context |
 
 ## Testing Checklist
 
-- [ ] API server starts successfully
-- [ ] All API endpoints return correct responses
-- [ ] CORS headers are properly configured
-- [ ] Web app loads and displays quests
-- [ ] Web app can create and delete quests
-- [ ] Mobile app loads and displays quests
-- [ ] Mobile app can create and delete quests
-- [ ] Cross-platform data synchronization works
-- [ ] TypeScript compilation succeeds for all packages
-- [ ] Linting passes for all packages
-- [ ] Type safety is maintained across all platforms
-- [ ] Error handling works correctly
-- [ ] Loading states are displayed properly
+- [ ] Convex dev server starts and responds to `npx convex run` commands
+- [ ] Web client loads and reflects live data updates
+- [ ] Expo client loads (web or native) and mirrors backend changes
+- [ ] TypeScript build (`pnpm build`) passes without diagnostics
+- [ ] Environment variables point to the correct Convex deployment
+- [ ] Convex dashboard shows expected data after interactions
 
-This comprehensive testing guide ensures that all aspects of the Elysia integration work correctly and maintain type safety across the entire application.
+Following this guide ensures the Convex backend, shared typings, and both clients stay in sync after updates to the SelfVision Quest stack.

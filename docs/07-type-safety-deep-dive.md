@@ -1,493 +1,205 @@
 # Type Safety Deep Dive
 
-This document provides an in-depth explanation of the type safety implementation across the SelfVision Quest monorepo.
+This document explains how end-to-end type safety works in the Convex + Better Auth architecture. Convex generates TypeScript types from your schema and functions. Those types flow through shared packages into the Next.js and Expo clients, ensuring IDE autocompletion and compile-time guarantees everywhere.
 
 ## Type Safety Architecture
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   API Server    │    │   Shared Types  │    │   Frontend Apps │
-│                 │    │                 │    │                 │
-│ Elysia Schema   │───►│ Eden Treaty     │───►│ Type-safe API  │
-│ TypeScript      │    │ Client Factory  │    │ Calls          │
-│ Export App Type│    │ Type Exports    │    │ Autocompletion  │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+┌──────────────────────┐    ┌────────────────────┐    ┌─────────────────────────┐
+│  Convex Backend      │    │  Shared Packages    │    │  Clients (Web & Mobile) │
+│  (schema + functions)│───►│ (@svq/convex/shared)│───►│  useQuery/useMutation    │
+│  ↓ _generated types  │    │  re-export helpers  │    │  Better Auth hooks       │
+└──────────────────────┘    └────────────────────┘    └─────────────────────────┘
 ```
 
-## Core Concepts
+1. **Convex** – schemas, queries, mutations, actions, and auth definitions reside in `apps/convex/convex`. Running `npx convex dev` regenerates `_generated` types on each change.
+2. **Shared packages** – `@svq/convex` exposes the generated client/ids; `@svq/shared` holds domain types or wrappers that both clients consume.
+3. **Clients** – Next.js and Expo import `api` helpers from `@svq/convex` and rely on React Query/Convex hooks for strongly typed data access.
 
-### 1. Single Source of Truth
+## Convex as the Source of Truth
 
-The API server (`apps/api`) is the single source of truth for all types:
+### Schema Definitions
 
 ```typescript
-// apps/api/src/index.ts
-const QuestSchema = t.Object({
-  id: t.String(),
-  title: t.String(),
-  description: t.String(),
-  status: t.Union([
-    t.Literal('pending'),
-    t.Literal('in_progress'),
-    t.Literal('completed'),
-  ]),
-  userId: t.String(),
-  createdAt: t.Date(),
-  updatedAt: t.Date(),
-})
+// apps/convex/convex/schema.ts
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
 
-// Export for Eden Treaty
-export type App = typeof app
+export default defineSchema({
+  tasks: defineTable({
+    text: v.string(),
+    createdAt: v.number(),
+  }).index("by_createdAt", ["createdAt"]),
+});
 ```
 
-### 2. Eden Treaty Type Generation
+Every time you edit the schema or any function, Convex regenerates:
+- `convex/_generated/api.ts` – Type-safe client definitions
+- `convex/_generated/dataModel.ts` – Table metadata and field types
+- `convex/_generated/server.ts` – server helpers with typed context
 
-Eden Treaty automatically generates client types from the server:
+### Functions With Typed Args/Results
 
 ```typescript
-import type { App } from '@svq/api'
-// packages/shared/src/client.ts
-import { edenTreaty } from '@elysiajs/eden'
+// apps/convex/convex/tasks.ts
+import { query } from "./_generated/server";
 
-export function createApiClient(baseUrl: string = 'http://localhost:3333') {
-  return edenTreaty<App>(baseUrl)
-}
-
-// This creates fully typed client methods:
-// - apiClient.quests.get()
-// - apiClient.quests.post(quest)
-// - apiClient.quests[id].delete()
-// etc.
+export const get = query({
+  args: {},
+  handler: async (ctx) => {
+    return ctx.db.query("tasks").collect();
+  },
+});
 ```
 
-### 3. Type Propagation Flow
+If you add arguments or return different data, Convex updates the generated types automatically. Invalid usage downstream becomes a TypeScript error.
 
-```
-API Server → Shared Package → Frontend Apps → Runtime Safety
-```
+### Better Auth Integration
 
-1. **API Server**: Defines types with Elysia schema
-2. **Shared Package**: Imports and re-exports types
-3. **Frontend Apps**: Consume types for API calls
-4. **Runtime**: Full type safety at compile time
+`apps/convex/convex/auth.ts` wraps Better Auth and exposes helper queries. These helpers share the same `_generated` foundation, so client code sees precise types for authenticated users, session data, and auth errors.
 
-## Type Safety Implementation Details
+## Sharing Types Across the Monorepo
 
-### API Server Types
+### Re-exporting Generated Clients
 
-#### Schema Definitions
+`@svq/convex` (the Convex workspace) exports generated helpers via `src/index.ts`. That means clients can simply import `api` or `Id` types without knowing about local file paths:
+
 ```typescript
-// Using Union types instead of Enum for better TypeScript support
-const QuestSchema = t.Object({
-  status: t.Union([
-    t.Literal('pending'),
-    t.Literal('in_progress'),
-    t.Literal('completed'),
-  ]),
-})
+// packages/shared/src/convex.ts
+export { api } from "@svq/convex";
+export type { Id } from "@svq/convex";
 ```
 
-#### Response Types
+### Adding Domain Types
+
+For additional interfaces (e.g., view models), place them in `packages/shared`:
+
 ```typescript
-// Automatic response type inference
-.get('/quests', () => {
-  return [ /* quest data */ ];
-}, {
-  response: t.Array(QuestSchema),
-})
+// packages/shared/src/types.ts
+import type { Doc } from "@svq/convex";
+
+export type TaskDoc = Doc<"tasks">;
 ```
 
-#### Request Body Validation
-```typescript
-.post('/quests', ({ body }) => {
-  return createQuest(body);
-}, {
-  body: CreateQuestSchema,
-  response: QuestSchema,
-})
-```
+The clients now receive a single source of truth for document shapes, even if you derive extra fields or map them to UI props.
 
-### Shared Package Types
+## Using Types in the Web App (Next.js)
 
-#### API Type Import
-```typescript
-// packages/shared/src/api.ts
-import type { App } from '@svq/api'
-
-export type { App }
-export type ApiApp = App
-```
-
-#### Client Factory Types
-```typescript
-// packages/shared/src/client.ts
-export type ApiClient = ReturnType<typeof createApiClient>
-
-// This provides types for:
-// - apiClient.quests.get()       → Promise<{ data: Quest[] }>
-// - apiClient.quests.post(quest) → Promise<{ data: Quest }>
-// - apiClient.quests[id].delete() → Promise<{ data: { success: boolean, message: string } }>
-```
-
-#### Shared Interface Types
-```typescript
-// packages/shared/index.ts
-export interface Quest {
-  id: string
-  title: string
-  description: string
-  status: 'pending' | 'in_progress' | 'completed'
-  userId: string
-  createdAt: Date
-  updatedAt: Date
-}
-```
-
-### Web App Types
-
-#### React Query Hooks
-```typescript
-// apps/web/src/hooks/useApi.ts
-export function useQuests() {
-  return useQuery({
-    queryKey: ['quests'],
-    queryFn: async () => {
-      const response = await apiClient.quests.get()
-      return response.data // TypeScript knows this is Quest[]
-    },
-  })
-}
-
-export function useCreateQuest() {
-  return useMutation({
-    mutationFn: async (quest: CreateQuest) => {
-      const response = await apiClient.quests.post(quest)
-      return response.data // TypeScript knows this is Quest
-    },
-  })
-}
-```
-
-#### Component Props
 ```typescript
 // apps/web/src/app/page.tsx
-quests?.map((quest: Quest) => (
-  <div key={quest.id}>
-    <h3>{quest.title}</h3>
-    {/* TypeScript knows quest has title, description, status */}
-  </div>
-))
-```
+"use client";
 
-### Mobile App Types
+import { useQuery } from "convex/react";
+import { api } from "@svq/convex";
 
-#### Zustand Store
-```typescript
-// apps/mobile/store/api.ts
-interface ApiState {
-  quests: Quest[] // Typed from shared package
-  loading: boolean
-  error: string | null
+export default function Home() {
+  const tasks = useQuery(api.tasks.get);
 
-  createQuest: (quest: CreateQuest) => Promise<void>
-  deleteQuest: (id: string) => Promise<void>
-}
-```
+  if (!tasks) return <p>Loading...</p>;
 
-#### Component Usage
-```typescript
-// apps/mobile/app/(tabs)/index.tsx
-const { quests, createQuest, deleteQuest } = useApiStore();
-const [newQuest, setNewQuest] = useState<CreateQuest>({
-  title: '',
-  description: ''
-});
-
-// TypeScript knows exactly what properties exist
-<Text>{quest.title}</Text>
-<Text>{quest.description}</Text>
-```
-
-## Type Safety Benefits
-
-### 1. Compile-Time Error Prevention
-
-```typescript
-// ❌ TypeScript Error - Property doesn't exist
-apiClient.quests.nonexistentMethod()
-
-// ❌ TypeScript Error - Wrong type
-apiClient.quests.post({
-  title: 'Test',
-  description: 123, // Should be string
-})
-
-// ❌ TypeScript Error - Missing required property
-apiClient.quests.post({
-  title: 'Test'
-  // Missing description
-})
-
-// ✅ TypeScript Success - Correct usage
-apiClient.quests.post({
-  title: 'Test',
-  description: 'Testing type safety'
-})
-```
-
-### 2. IDE Autocompletion
-
-```typescript
-// Typing "apiClient." shows available methods:
-// - apiClient.index
-// - apiClient.users
-// - apiClient.quests
-
-// Typing "apiClient.quests." shows available methods:
-// - apiClient.quests.get()
-// - apiClient.quests.post(body)
-// - apiClient.quests[id].get()
-// - apiClient.quests[id].put(body)
-// - apiClient.quests[id].delete()
-```
-
-### 3. Refactoring Safety
-
-```typescript
-// If you change the API schema:
-// Before:
-interface Quest {
-  title: string
-  description: string
-}
-
-// After:
-interface Quest {
-  name: string // Changed from title
-  details: string // Changed from description
-}
-
-// TypeScript will show errors in all frontend code:
-// ❌ quest.title → quest.name
-// ❌ quest.description → quest.details
-```
-
-### 4. Response Type Safety
-
-```typescript
-// TypeScript knows exactly what the response looks like
-const response = await apiClient.quests.get()
-
-// ✅ Safe - TypeScript knows response.data is Quest[]
-response.data.map(quest => quest.title)
-
-// ❌ Error - TypeScript knows response doesn't have message
-response.message
-
-// ✅ Safe - TypeScript knows response has data property
-response.data
-```
-
-## Type Safety Patterns
-
-### 1. API Response Pattern
-```typescript
-// All API responses follow this pattern:
-interface ApiResponse<T> {
-  data: T
-  success: boolean
-  message?: string
-}
-
-// Eden Treaty automatically creates this structure
-const response = await apiClient.quests.get()
-// response.data: Quest[]
-// response.success: boolean
-```
-
-### 2. Error Handling Pattern
-```typescript
-// Type-safe error handling
-try {
-  const response = await apiClient.quests.post(quest)
-  return response.data
-}
-catch (error) {
-  // TypeScript knows what type of error this is
-  console.error('Failed to create quest:', error)
-}
-```
-
-### 3. Component Props Pattern
-```typescript
-// Type-safe component props
-interface QuestCardProps {
-  quest: Quest;
-  onDelete: (id: string) => void;
-}
-
-export const QuestCard: React.FC<QuestCardProps> = ({ quest, onDelete }) => {
   return (
-    <div>
-      <h3>{quest.title}</h3>
-      <button onClick={() => onDelete(quest.id)}>
-        Delete
-      </button>
-    </div>
+    <main>
+      {tasks.map(({ _id, text }) => (
+        <p key={_id}>{text}</p>
+      ))}
+    </main>
   );
-};
-```
-
-## Advanced Type Safety Features
-
-### 1. Conditional Types
-```typescript
-// Eden Treaty uses conditional types for path parameters
-type ApiClient = ReturnType<typeof createApiClient>
-
-// apiClient.quests[id] knows id must be string
-async function deleteQuest(id: string) {
-  const response = await apiClient.quests[id].delete()
-  return response.data
 }
 ```
 
-### 2. Generic Type Parameters
+- `api.tasks.get` is strongly typed; if you add arguments to the Convex query, TypeScript immediately enforces them here.
+- `tasks` is typed as `Doc<"tasks">[]`, giving you autocompletion for `_id`, `text`, etc.
+- If you add a mutation, `useMutation(api.tasks.create)` returns a typed function describing required arguments and return values.
+
+## Using Types in the Mobile App (Expo)
+
 ```typescript
-// React Query generics for custom hooks
-export function useQuest(id: string) {
-  return useQuery({
-    queryKey: ['quests', id],
-    queryFn: async () => {
-      const response = await apiClient.quests[id].get()
-      return response.data // TypeScript knows this is Quest
-    },
-  })
+// apps/mobile/app/(tabs)/index.tsx (simplified)
+import { useQuery } from "convex/react";
+import { api } from "@svq/convex";
+
+export default function TasksScreen() {
+  const tasks = useQuery(api.tasks.get);
+
+  return (
+    <View>
+      {tasks?.map(({ _id, text }) => (
+        <Text key={_id}>{text}</Text>
+      ))}
+    </View>
+  );
 }
 ```
 
-### 3. Discriminated Unions
-```typescript
-// Status is a discriminated union
-type QuestStatus = 'pending' | 'in_progress' | 'completed'
+React Native shares the same Convex React bindings, so hooks behave identically. Zustand stores or React Query wrappers can reference the same `Doc<"tasks">` types to guarantee parity between clients.
 
-// TypeScript can narrow down types
-function getStatusColor(status: QuestStatus) {
-  switch (status) {
-    case 'pending': return 'gray'
-    case 'in_progress': return 'yellow'
-    case 'completed': return 'green'
-  }
+## Benefits
+
+1. **Convex-driven type generation** – No manual DTO maintenance; schema changes ripple through the repo instantly.
+2. **Better Auth typing** – Auth helpers expose typed results, so you know when a user is `null` vs authenticated.
+3. **Shared package reuse** – UI and business logic packages import one canonical set of types.
+4. **Refactor confidence** – Renaming a field in Convex triggers TypeScript errors until all clients adjust.
+
+## Common Patterns
+
+### Narrowing Documents
+
+```typescript
+import type { Doc } from "@svq/convex";
+
+type Task = Doc<"tasks">;
+
+function isRecent(task: Task) {
+  return Date.now() - task.createdAt < 86_400_000;
 }
 ```
 
-## Type Safety Validation
-
-### 1. TypeScript Compilation
-```bash
-# Should succeed without errors
-pnpm build
-
-# Check individual packages
-cd apps/api && pnpm build
-cd apps/web && pnpm build
-cd apps/mobile && pnpm lint
-```
-
-### 2. Type Checking
-```typescript
-import type { Quest } from '@svq/shared'
-// Test that types are properly connected
-import { apiClient } from '@svq/shared'
-
-// This should work with full autocompletion
-const quest: Quest = await apiClient.quests.get().then(res => res.data[0])
-```
-
-### 3. IDE Integration
-- Hover over any API method call
-- Should show complete type information
-- Autocompletion should work for all properties
-- Refactoring should update all references
-
-## Common Type Safety Issues and Solutions
-
-### 1. Circular Dependencies
-**Problem**: Type import loops between packages
-**Solution**: Use `type` imports for types only
+### Typed Mutations
 
 ```typescript
-// ✅ Correct - type import
-import type { App } from '@svq/api'
+const createTask = useMutation(api.tasks.create);
 
-// ❌ Incorrect - value import can cause circular dependencies
-import { App } from '@svq/api'
-```
-
-### 2. Missing Type Exports
-**Problem**: Types not properly exported from shared package
-**Solution**: Ensure all necessary types are exported
-
-```typescript
-// packages/shared/index.ts
-export * from './src/api'
-export * from './src/client'
-export type * from './src/types' // If you have additional types
-```
-
-### 3. Runtime vs Compile Time
-**Problem**: Expecting runtime type validation
-**Solution**: Remember TypeScript is compile-time only
-
-```typescript
-// TypeScript provides compile-time safety
-// Runtime validation is handled by Elysia schemas
-const response = await apiClient.quests.post(invalidQuest)
-// This will fail at runtime due to Elysia schema validation
-```
-
-## Type Safety Best Practices
-
-### 1. Keep Types Simple
-```typescript
-// ✅ Good - Simple, clear types
-interface Quest {
-  id: string
-  title: string
-  description: string
-  status: QuestStatus
-}
-
-// ❌ Avoid - Overly complex types
-interface QuestWithComplexNestedTypes {
-  // ... unnecessary complexity
+async function handleSubmit(text: string) {
+  await createTask({ text }); // TypeScript enforces required args
 }
 ```
 
-### 2. Use Type Exports
-```typescript
-// ✅ Export types explicitly
-export type { CreateQuest, Quest, UpdateQuest }
+### Auth-aware Components
 
-// ❌ Don't rely on implicit exports
-export { CreateQuest, Quest, UpdateQuest }
-```
-
-### 3. Document Type Intentions
 ```typescript
-/**
- * Represents a quest in the system
- * @property id - Unique identifier
- * @property title - Display title
- * @property description - Detailed description
- * @property status - Current quest status
- */
-export interface Quest {
-  id: string
-  title: string
-  description: string
-  status: QuestStatus
+import { useQuery } from "convex/react";
+import { api } from "@svq/convex";
+
+const currentUser = useQuery(api.auth.getCurrentUser);
+
+if (!currentUser) {
+  return <SignInPrompt />;
 }
+
+return <Dashboard user={currentUser} />;
 ```
 
-This type safety implementation ensures that your entire application maintains type safety from the API server to the frontend clients, providing excellent developer experience and preventing runtime errors.
+## Validating Type Safety
+
+1. **Run the Convex dev server** – `pnpm --filter @svq/convex dev`
+2. **Make schema/function changes** – Types regenerate automatically
+3. **Check clients** – IDE squiggles highlight any usages that must be updated
+4. **Run builds** – `pnpm build` ensures Turbo executes type checking across the monorepo
+
+## Troubleshooting
+
+| Issue | Cause | Resolution |
+| --- | --- | --- |
+| `_generated` imports missing | Convex dev server not running after schema change | Start `pnpm --filter @svq/convex dev` or run `pnpm build` |
+| `Doc<"table">` resolves to `never` | Table name typo or schema not yet built | Verify the table exists in `schema.ts`, rerun Convex typegen |
+| Auth helper types are `any` | Auth client not re-exported correctly | Ensure `@svq/convex` exports `components` / auth helpers |
+| Clients reference stale fields | Shared package not rebuilt | `pnpm --filter @svq/shared build` then `pnpm build` |
+
+## Best Practices
+
+- Keep schema updates incremental; regenerate types frequently during edits
+- Prefer `import type { Doc } ...` when only TypeScript information is needed to avoid runtime imports
+- Surface domain-specific aliases (e.g., `type Task = Doc<"tasks">`) in shared packages to reduce duplication
+- Commit Convex `_generated` files so teammates receive updated types without needing to regenerate immediately
+
+With Convex and Better Auth, type information starts at the data layer and flows through the entire stack, delivering consistent autocompletion, safer refactors, and fewer runtime surprises across SelfVision Quest.

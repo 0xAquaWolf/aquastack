@@ -77,7 +77,7 @@ This document provides a comprehensive overview of the SelfVision Quest architec
 3. **Maintainability**: Single source of truth for data schemas and types
 4. **Scalability**: Convex handles scaling automatically, easy to add new features
 5. **Consistency**: Same data access patterns across web and mobile
-6. **Performance**: Optimized builds with Vite, efficient data fetching with Convex
+6. **Performance**: Next.js 15 with Turbopack delivers fast builds while Convex keeps data access efficient
 
 ## Data Flow
 
@@ -103,21 +103,21 @@ User Action → Frontend → Convex Query/Mutation → Database → Real-time Up
 
 ## Migration Benefits
 
-The migration from Next.js + Elysia to Vite + React + Convex provides:
+Migrating from the former Elysia REST API to Convex (while retaining the Next.js frontend) provides:
 
-- **Simplified Architecture**: Single platform for both API and database
-- **Better Real-time**: Native real-time features without additional setup
-- **Improved Developer Experience**: Faster builds, better DX with Vite
-- **Enhanced Type Safety**: End-to-end types from database to UI
-- **Automatic Scaling**: Convex handles infrastructure scaling automatically
-- **Reduced Complexity**: No need to manage separate API server and database
+- **Simplified Architecture**: One platform powers data, auth, and functions
+- **Better Real-time**: Native subscriptions without custom WebSocket plumbing
+- **Improved Developer Experience**: Automatic type generation shared by web and mobile
+- **Enhanced Type Safety**: Convex schemas flow straight into client code
+- **Automatic Scaling**: Convex manages infrastructure and concurrency
+- **Reduced Complexity**: No standalone API server, CORS, or schema duplication
 
 ## Getting Started
 
 1. **Setup Convex**: Create Convex project and define schemas
-2. **Setup Frontend**: Initialize Vite + React or Expo project
-3. **Connect Clients**: Install and configure Convex clients
-4. **Share Types**: Create shared package for common types and components
-5. **Implement Features**: Build features using type-safe queries and mutations
+2. **Setup Frontend**: Scaffold the Next.js web app and Expo mobile client
+3. **Connect Clients**: Install and configure Convex clients in Next.js and Expo
+4. **Share Types**: Export generated types through shared packages as needed
+5. **Implement Features**: Build features using type-safe queries, mutations, actions, and Better Auth helpers
 
 See individual implementation documents for detailed setup instructions.
