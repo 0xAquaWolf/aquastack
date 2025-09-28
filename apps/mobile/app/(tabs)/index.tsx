@@ -1,13 +1,18 @@
-import { Stack } from 'expo-router'
+import { api } from '@svq/convex'
+import { useQuery } from 'convex/react'
 import { Text, View } from 'react-native'
 
-export default function Home() {
+export default function Index() {
+  const tasks = useQuery(api.tasks.get)
   return (
-    <>
-      <Stack.Screen options={{ title: 'Home' }} />
-      <View className="flex-1 items-center justify-center bg-gray-50">
-        <Text className="text-lg text-gray-500">Welcome to your app</Text>
-      </View>
-    </>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      {tasks?.map(({ _id, text }) => <Text key={_id}>{text}</Text>)}
+    </View>
   )
 }

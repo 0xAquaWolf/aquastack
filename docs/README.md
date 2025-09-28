@@ -1,23 +1,23 @@
 # Documentation Index
 
-This is the main index for all SelfVision Quest Elysia Integration documentation.
+This is the main index for all SelfVision Quest Vite + React + Convex documentation.
 
 ## Quick Start
 
-- [**Elysia Integration Overview**](./01-elysia-integration-overview.md) - High-level architecture and features
+- [**Architecture Overview**](./01-architecture-overview.md) - High-level architecture and features
 - [**Testing Guide**](./06-testing-guide.md) - Quick way to test the complete system
 - [**Development Workflow**](./08-development-workflow.md) - Daily development commands and processes
 
 ## Core Documentation
 
 ### 1. System Architecture
-- [**Elysia Integration Overview**](./01-elysia-integration-overview.md) - Architecture and key features
+- [**Architecture Overview**](./01-architecture-overview.md) - Architecture and key features
 - [**Type Safety Deep Dive**](./07-type-safety-deep-dive.md) - Comprehensive type safety explanation
 
 ### 2. Implementation Details
-- [**API Server Implementation**](./02-api-server-implementation.md) - Elysia server setup and endpoints
+- [**Convex Backend Implementation**](./02-convex-backend.md) - Convex backend setup and API endpoints
 - [**Shared Types Package**](./03-shared-types-package.md) - Central type management
-- [**Web App Implementation**](./04-web-app-implementation.md) - Next.js web app details
+- [**Web App Implementation**](./04-web-app-implementation.md) - Vite + React web app details
 - [**Mobile App Implementation**](./05-mobile-app-implementation.md) - Expo mobile app details
 
 ### 3. Development and Operations
@@ -34,22 +34,23 @@ This is the main index for all SelfVision Quest Elysia Integration documentation
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Web App       │    │   Mobile App    │    │   Shared Types  │
-│  (Next.js)      │    │   (Expo)        │    │   Package       │
+│  (Vite + React) │    │   (Expo)        │    │   Package       │
 │                 │    │                 │    │                 │
-│ - React Query   │◄──►│ - Zustand       │◄──►│ - Eden Treaty   │
-│ - Eden Client   │    │ - Eden Client   │    │ - API Types     │
-│ - Type Safe     │    │ - Type Safe     │    │ - Shared Utils  │
+│ - TanStack Rtr  │◄──►│ - Zustand       │◄──►│ - Convex Types  │
+│ - Convex Client│    │ - Convex Client │    │ - Shared Utils  │
+│ - Type Safe     │    │ - Type Safe     │    │ - UI Components │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          └───────────────────────┼───────────────────────┘
                                  │
                     ┌─────────────────┐
-                    │   API Server    │
-                    │   (Elysia)      │
+                    │   Backend       │
+                    │   (Convex)      │
                     │                 │
+                    │ - Real-time     │
                     │ - Type Safe     │
-                    │ - Schema Val    │
-                    │ - CORS Enabled  │
+                    │ - Auto-scaling  │
+                    │ - Auth Ready    │
                     └─────────────────┘
 ```
 
@@ -69,15 +70,15 @@ pnpm build
 ```
 
 ### Port Configuration
-- **API Server**: `http://localhost:3333`
-- **Web App**: `http://localhost:3000`
-- **Mobile App**: `http://localhost:8081` (web version)
+- **Convex Backend**: Real-time sync (managed by Convex)
+- **Web App**: `http://localhost:5173` (Vite dev server)
+- **Mobile App**: `http://localhost:8081` (Expo dev server)
 
 ### File Structure
 ```
 docs/
-├── 01-elysia-integration-overview.md
-├── 02-api-server-implementation.md
+├── 01-architecture-overview.md
+├── 02-convex-backend.md
 ├── 03-shared-types-package.md
 ├── 04-web-app-implementation.md
 ├── 05-mobile-app-implementation.md
@@ -91,13 +92,13 @@ docs/
 ## Getting Started
 
 ### New Developer Onboarding
-1. Read the [Integration Overview](./01-elysia-integration-overview.md)
+1. Read the [Architecture Overview](./01-architecture-overview.md)
 2. Follow the [Development Workflow](./08-development-workflow.md)
 3. Test your setup using the [Testing Guide](./06-testing-guide.md)
 4. Refer to [Troubleshooting](./09-troubleshooting-guide.md) if you encounter issues
 
 ### System Testing
-1. Start the API server: `cd apps/api && pnpm dev`
+1. Start the Convex backend: `cd apps/convex && pnpm dev`
 2. Start the web app: `cd apps/web && pnpm dev`
 3. Start the mobile app: `cd apps/mobile && pnpm dev`
 4. Follow the [Testing Guide](./06-testing-guide.md) for comprehensive testing

@@ -5,12 +5,24 @@
     "dev": {
       "cache": false,
       "persistent": true,
-      "env": ["CONVEX_DEPLOYMEN", "CONVEX_URl", "CONVEX_SITE_URL"]
+      "env": [
+        "CONVEX_DEPLOYMENT",
+        "CONVEX_URL",
+        "CONVEX_SITE_URL",
+        "NEXT_PUBLIC_CONVEX_URL",
+        "EXPO_PUBLIC_CONVEX_URL"
+      ]
     },
     "build": {
       "dependsOn": ["^build"],
       "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
-      "env": ["CONVEX_DEPLOYMENT", "CONVEX_URL", "CONVEX_SITE_URL", "NEXT_PUBLIC_CONVEX_URL"]
+      "env": [
+        "CONVEX_DEPLOYMENT",
+        "CONVEX_URL",
+        "CONVEX_SITE_URL",
+        "NEXT_PUBLIC_CONVEX_URL",
+        "EXPO_PUBLIC_CONVEX_URL"
+      ]
     },
     "lint": {
       "dependsOn": ["^build"],

@@ -24,6 +24,9 @@ export default antfu(
       'react/display-name': 'off',
       'react/react-in-jsx-scope': 'off',
       'react/prop-types': 'off',
+      'node/prefer-global/process': 'off',
+      'ts/ban-ts-comment': 'off',
+
     },
     // Files to ignore
     ignores: [

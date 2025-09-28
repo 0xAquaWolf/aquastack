@@ -4,22 +4,25 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-SelfVision Quest is a full-stack cross-platform application built as a Turborepo monorepo. It includes both web (Next.js) and mobile (Expo React Native) applications sharing common UI components and business logic.
+SelfVision Quest is a full-stack cross-platform application built as a Turborepo monorepo. It includes both web (Next.js) and mobile (Expo React Native) applications sharing common UI components and business logic, with Convex as the backend data and API platform, and Better Auth for authentication.
 
 ## Architecture
 
 ### Monorepo Structure
-- `apps/web/` - Next.js 15 web application with App Router and Turbopack
-- `apps/mobile/` - Expo 53 React Native app with Expo Router v5
+- `apps/web/` - Next.js 15 web application with App Router and Better Auth
+- `apps/mobile/` - Expo 53 React Native app with Expo Router v5 and Better Auth
+- `apps/convex/` - Convex backend for data storage, API endpoints, and authentication
 - `packages/ui/` - Shared TypeScript UI components
-- `packages/shared/` - Shared business logic and authentication (better-auth)
+- `packages/shared/` - Shared business logic and types
 - `packages/config/` - Shared configuration
 
 ### Key Technologies
 - **Monorepo**: Turborepo + pnpm workspaces
-- **Web**: Next.js 15.5.4, React 19, Tailwind CSS v4, Turbopack
-- **Mobile**: Expo 53, React Native 0.79.5, NativeWind, Zustand state management
-- **Shared**: TypeScript 5+, better-auth for authentication
+- **Web**: Next.js 15, React 19, App Router, Tailwind CSS v4, Better Auth
+- **Mobile**: Expo 53, React Native 0.79.5, Expo Router v5, NativeWind, Zustand, Better Auth
+- **Backend**: Convex for real-time data, APIs, and authentication
+- **Authentication**: Better Auth integrated with Convex
+- **Shared**: TypeScript 5+, workspace dependencies
 - **Package Manager**: pnpm with `workspace:*` protocol for internal dependencies
 
 ## Development Commands
@@ -32,8 +35,8 @@ turbo build  # Build all apps and packages
 
 ### Web App (`apps/web/`)
 ```bash
-pnpm dev     # Next.js dev server with Turbopack
-pnpm build   # Production build with Turbopack
+pnpm dev     # Vite dev server
+pnpm build   # Production build with Vite
 pnpm start   # Start production server
 pnpm lint    # ESLint
 ```
@@ -49,9 +52,15 @@ pnpm lint       # ESLint + Prettier check
 pnpm format     # Auto-fix and format code
 ```
 
+### Convex Backend (`apps/convex/`)
+```bash
+pnpm dev         # Start Convex dev server
+pnpm deploy      # Deploy to production
+```
+
 ### Shared Packages
 ```bash
-pnpm dev         # Watch TypeScript compilation (packages/ui)
+pnpm dev         # Watch TypeScript compilation (packages/ui, packages/shared)
 pnpm build       # Build TypeScript
 pnpm type-check  # Type checking without emit
 ```
@@ -68,7 +77,9 @@ After making changes, run these commands in order:
 ## Important Notes
 
 - Use `workspace:*` protocol for internal package dependencies
-- Web uses App Router file-based routing in `src/app/`
+- Web uses TanStack Router with file-based routing in `src/routes/`
 - Mobile uses Expo Router with `(tabs)` route groups in `app/`
+- Convex provides real-time data synchronization and type-safe API endpoints
 - No testing framework configured - manual testing required
 - Both apps share Tailwind styling (CSS for web, NativeWind for mobile)
+- The project has migrated from Next.js to Vite + TanStack Router for the web app
