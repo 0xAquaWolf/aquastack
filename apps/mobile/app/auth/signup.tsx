@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { authClient } from '@/lib/auth-client'
 import { useRouter } from 'expo-router'
 
@@ -55,12 +55,12 @@ export default function SignupScreen() {
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      <Text style={styles.subtitle}>Sign up to get started</Text>
+    <View className="flex-1 justify-center bg-white px-5">
+      <Text className="mb-2 text-center text-3xl font-bold text-gray-900">Create Account</Text>
+      <Text className="mb-8 text-center text-base text-gray-600">Sign up to get started</Text>
 
       <TextInput
-        style={styles.input}
+        className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-base"
         placeholder="Full Name"
         value={name}
         onChangeText={setName}
@@ -69,7 +69,7 @@ export default function SignupScreen() {
       />
 
       <TextInput
-        style={styles.input}
+        className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-base"
         placeholder="Email"
         value={email}
         onChangeText={setEmail}
@@ -79,7 +79,7 @@ export default function SignupScreen() {
       />
 
       <TextInput
-        style={styles.input}
+        className="mb-4 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 text-base"
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
@@ -88,77 +88,24 @@ export default function SignupScreen() {
       />
 
       <TouchableOpacity
-        style={[styles.button, isLoading && styles.buttonDisabled]}
+        className={`mt-2 items-center rounded-lg py-4 ${isLoading ? 'bg-gray-300' : 'bg-blue-500'}`}
         onPress={handleSignup}
         disabled={isLoading}
       >
-        <Text style={styles.buttonText}>
+        <Text className="text-base font-semibold text-white">
           {isLoading ? 'Creating Account...' : 'Create Account'}
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.linkButton}
+        className="mt-6 items-center"
         onPress={() => router.push('/auth/login')}
         disabled={isLoading}
       >
-        <Text style={styles.linkText}>
+        <Text className="text-base text-blue-500">
           Already have an account? Sign In
         </Text>
       </TouchableOpacity>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 32,
-    textAlign: 'center',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 16,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonDisabled: {
-    backgroundColor: '#ccc',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  linkButton: {
-    marginTop: 24,
-    alignItems: 'center',
-  },
-  linkText: {
-    color: '#007AFF',
-    fontSize: 16,
-  },
-})
