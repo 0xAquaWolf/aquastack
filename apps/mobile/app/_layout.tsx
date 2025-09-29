@@ -25,9 +25,7 @@ export default function RootLayout() {
         <ConvexBetterAuthProvider client={convex} authClient={authClient}>
           <Stack>
             <Stack.Screen name="auth" options={{ headerShown: false }} />
-            <Stack.Screen name="dashboard" options={{ headerShown: false }} />
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-            <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
           </Stack>
         </ConvexBetterAuthProvider>
       </ConvexProvider>

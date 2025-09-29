@@ -1,19 +1,18 @@
-import { Stack, useRouter } from 'expo-router'
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { Stack } from 'expo-router'
+import { ScrollView, Text, View } from 'react-native'
 import { authClient } from '@/lib/auth-client'
 import AuthGuard from '@/components/AuthGuard'
+import { useQuery } from 'convex/react'
+import { api } from '@svq/convex'
 
 export default function DashboardTabScreen() {
-  const router = useRouter()
   const { data: session } = authClient.useSession()
   const userName = session?.user?.name ?? 'User'
   const userEmail = session?.user?.email ?? 'Not available'
   const userId = session?.user?.id ?? 'Not available'
 
-  const handleLogout = async () => {
-    await authClient.signOut()
-    router.replace('/auth/login')
-  }
+  const tasks = useQuery(api.tasks.get)
+  const hasTasks = !!tasks && tasks.length > 0
 
   return (
     <AuthGuard>
@@ -53,12 +52,19 @@ export default function DashboardTabScreen() {
           </View>
         </View>
 
-        <TouchableOpacity
-          className="mt-10 w-full items-center rounded-lg bg-red-500 px-6 py-3"
-          onPress={handleLogout}
-        >
-          <Text className="text-base font-semibold text-white">Sign Out</Text>
-        </TouchableOpacity>
+        <View className="rounded-2xl bg-white p-5 shadow-sm mt-6">
+          {hasTasks && (
+            <View className="w-full max-w-xs items-center gap-2">
+              {tasks!.map(({ _id, text }) => (
+                <Text key={_id} className="text-base text-gray-700">
+                  {text}
+                </Text>
+              ))}
+            </View>
+          )}
+          {!hasTasks && <Text className="text-base text-gray-500">No tasks yet.</Text>}
+        </View>
+
       </ScrollView>
     </AuthGuard>
   )
