@@ -22,7 +22,7 @@ export default function Index() {
         )}
         {!hasTasks && <Text className="text-base text-gray-500">No tasks yet.</Text>}
 
-        <Link href="/dashboard" asChild>
+        <Link href="/(tabs)/dashboard" asChild>
           <TouchableOpacity className="mt-8 w-full max-w-xs items-center rounded-lg bg-blue-500 px-6 py-3">
             <Text className="text-base font-semibold text-white">Go to Dashboard</Text>
           </TouchableOpacity>
