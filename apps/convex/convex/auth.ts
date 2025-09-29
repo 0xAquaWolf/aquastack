@@ -2,11 +2,15 @@ import type { GenericCtx } from '@convex-dev/better-auth'
 import type { DataModel } from './_generated/dataModel'
 import { createClient } from '@convex-dev/better-auth'
 import { convex } from '@convex-dev/better-auth/plugins'
+import { expo } from '@better-auth/expo'
 import { betterAuth } from 'better-auth'
+import { resolveSiteUrl, resolveTrustedOrigins } from '@svq/shared'
 import { components } from './_generated/api'
 import { query } from './_generated/server'
 
-const siteUrl = process.env.SITE_URL!
+const siteUrl = resolveSiteUrl()
+const trustedOrigins = resolveTrustedOrigins()
+const isProduction = process.env.NODE_ENV === 'production'
 
 // The component client has methods needed for integrating Convex with Better Auth,
 // as well as helper methods for general use.
@@ -26,9 +30,26 @@ export function createAuth(ctx: GenericCtx<DataModel>, { optionsOnly } = { optio
       enabled: true,
       requireEmailVerification: false,
     },
+    session: {
+      expiresIn: 60 * 60 * 24 * 30,
+      updateAge: 60 * 60 * 12,
+      storeSessionInDatabase: true,
+    },
+    advanced: {
+      useSecureCookies: isProduction,
+      cookieAttributes: {
+        sameSite: 'lax',
+        path: '/',
+        secure: isProduction,
+      },
+    },
+    trustedOrigins,
     plugins: [
       // The Convex plugin is required for Convex compatibility
       convex(),
+      expo({
+        overrideOrigin: true,
+      }),
     ],
   })
 }

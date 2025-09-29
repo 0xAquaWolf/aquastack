@@ -20,7 +20,13 @@
     ],
     "paths": {
       "@/*": ["./src/*"],
-      "@/lib": ["./src/lib"]
+      "@/lib": ["./src/lib"],
+      "@svq/*": [
+        "../../packages/*/src",
+        "../../packages/*",
+        "../../apps/*/src",
+        "../../apps/*"
+      ]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

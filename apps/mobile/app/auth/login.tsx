@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Alert, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { Alert, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { authClient } from '@/lib/auth-client'
 import { useRouter } from 'expo-router'
 
@@ -7,6 +7,7 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [rememberMe, setRememberMe] = useState(true)
   const router = useRouter()
 
   const handleLogin = async () => {
@@ -20,6 +21,7 @@ export default function LoginScreen() {
       const result = await authClient.signIn.email({
         email,
         password,
+        rememberMe,
       })
 
       if (result.error) {
@@ -62,6 +64,15 @@ export default function LoginScreen() {
         secureTextEntry
         editable={!isLoading}
       />
+
+      <View className="mb-4 flex-row items-center justify-between">
+        <Text className="text-base text-gray-600">Stay signed in</Text>
+        <Switch
+          value={rememberMe}
+          onValueChange={setRememberMe}
+          disabled={isLoading}
+        />
+      </View>
 
       <TouchableOpacity
         className={`mt-2 items-center rounded-lg py-4 ${isLoading ? 'bg-gray-300' : 'bg-blue-500'}`}
