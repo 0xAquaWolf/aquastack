@@ -43,7 +43,7 @@ export default function DashboardTabScreen() {
             </View>
           </View>
 
-          <View className="rounded-2xl bg-white p-5 shadow-sm">
+          <View className="rounded-2xl bg-white p-5 shadow-sm mt-6">
             <Text className="text-lg font-semibold text-gray-900">Features</Text>
             <View className="mt-3 space-y-1">
               <Text className="text-base text-gray-600">• View your profile</Text>
