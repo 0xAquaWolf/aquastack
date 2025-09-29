@@ -8,13 +8,16 @@
     "ios": "expo run:ios",
     "start": "expo start --dev-client",
     "dev": "expo start",
+    "dev:clear": "expo start --clear",
     "prebuild": "expo prebuild",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "web": "expo start --web",
-    "refresh": "watchman watch-del '/Users/0xaquawolf/Projects/selfvision-quest' ; watchman watch-project '/Users/0xaquawolf/Projects/selfvision-quest'"
+    "refresh": "watchman watch-del '/Users/0xaquawolf/Projects/selfvision-quest' ; watchman watch-project '/Users/0xaquawolf/Projects/selfvision-quest'",
+    "start:clear": "expo start --dev-client --clear",
+    "reset": "pnpm run refresh && pnpm run dev:clear"
   },
   "dependencies": {
     "@better-auth/expo": "1.3.8",
@@ -50,6 +53,7 @@
   "devDependencies": {
     "@babel/core": "7.28.4",
     "@types/react": "19.1.13",
+    "babel-plugin-module-resolver": "5.0.2",
     "tailwindcss": "3.4.17",
     "typescript": "~5.9.2"
   }
