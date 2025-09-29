@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
 import { api } from "@svq/convex";
-export { authClient } from '@/lib/auth-client'
+import { authClient } from "@/lib/auth-client";
 
 export default function DashboardPage() {
   const router = useRouter();
