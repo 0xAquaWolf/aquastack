@@ -3,7 +3,7 @@
     "name": "SelfVision Quest",
     "slug": "selfvision-quest",
     "version": "1.0.0",
-    "scheme": "mobile",
+    "scheme": "selfvisionquest",
     "web": {
       "bundler": "metro",
       "output": "static",

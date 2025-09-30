@@ -9,9 +9,13 @@
       "distribution": "internal"
     },
     "preview": {
+      "developmentClient": true,
       "distribution": "internal",
       "ios": {
         "simulator": true
+      },
+      "env": {
+        "NODE_ENV": "development"
       }
     },
     "production": {

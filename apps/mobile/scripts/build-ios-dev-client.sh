@@ -7,6 +7,9 @@ cleanup() {
   if [[ -n "${TEMP_DIR:-}" && -d "$TEMP_DIR" ]]; then
     rm -rf "$TEMP_DIR"
   fi
+  if [[ -n "${BUILD_LOG:-}" && -f "$BUILD_LOG" ]]; then
+    rm -f "$BUILD_LOG"
+  fi
 }
 trap cleanup EXIT
 
@@ -15,25 +18,22 @@ cd "$PROJECT_ROOT"
 
 echo "🚀 Building iOS simulator dev client (Expo dev-client)..."
 
-BUILD_JSON=$(eas build --profile development-simulator --platform ios --local --json)
+EAS_PROFILE="${EAS_PROFILE:-preview}"
 
-ARTIFACT_PATH=$(node - <<'EOF'
-const data = JSON.parse(process.argv[1]);
-if (!Array.isArray(data) || !data.length) {
-  console.error('Unable to parse EAS build JSON output.');
-  process.exit(1);
-}
-const artifactUri = data[0]?.artifacts?.buildUrl || data[0]?.artifacts?.artifactUrl;
-if (!artifactUri) {
-  console.error('Artifact path missing from EAS build output.');
-  process.exit(1);
-}
-console.log(artifactUri);
-EOF
-"$BUILD_JSON")
+TEMP_DIR="$(mktemp -d)"
+BUILD_LOG="$(mktemp)"
+
+echo "📦 Running EAS build (profile: $EAS_PROFILE)"
+export EXPO_NO_PROMPT=1
+if ! eas build --profile "$EAS_PROFILE" --platform ios --local --non-interactive | tee "$BUILD_LOG"; then
+  echo "❌ EAS build failed. See log at $BUILD_LOG" >&2
+  exit 1
+fi
+
+ARTIFACT_PATH=$(grep -Eo '/[^[:space:]]+\.(ipa|tar\.gz)' "$BUILD_LOG" | tail -n1 || true)
 
 if [[ -z "$ARTIFACT_PATH" ]]; then
-  echo "❌ Failed to determine artifact path from EAS output." >&2
+  echo "❌ Unable to find artifact path in build log." >&2
   exit 1
 fi
 
@@ -42,12 +42,13 @@ if [[ ! -f "$ARTIFACT_PATH" ]]; then
   exit 1
 fi
 
-echo "📦 Artifact created at $ARTIFACT_PATH"
-
-TEMP_DIR="$(mktemp -d)"
-tar -xzf "$ARTIFACT_PATH" -C "$TEMP_DIR"
-
-APP_PATH="$(find "$TEMP_DIR" -maxdepth 2 -name '*.app' -print -quit)"
+if [[ "$ARTIFACT_PATH" == *.tar.gz ]]; then
+  tar -xzf "$ARTIFACT_PATH" -C "$TEMP_DIR"
+  APP_PATH="$(find "$TEMP_DIR" -maxdepth 2 -name '*.app' -print -quit)"
+else
+  echo "⚠️  Artifact is not a .tar.gz (path: $ARTIFACT_PATH). Skipping automatic install." >&2
+  exit 1
+fi
 if [[ -z "$APP_PATH" ]]; then
   echo "❌ Unable to locate .app bundle inside extracted artifact." >&2
   exit 1
