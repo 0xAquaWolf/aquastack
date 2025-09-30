@@ -14,6 +14,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=for-the-badge)](CONTRIBUTING.md)
+[![YouTube Channel](https://img.shields.io/badge/YouTube-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/@0xAquaWolf)
 
 </div>
 
@@ -368,8 +369,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Built with ❤️ by the AquaStack team**
+**Built with ❤️ by [0xAquaWolf](https://github.com/0xAquaWolf)**
 
-[📖 Documentation](./docs) · [🐛 Issues](https://github.com/0xAquaWolf/aquastack/issues) · [🎨 Website](https://aquastack.dev)
+[📖 Documentation](./docs) · [🐛 Issues](https://github.com/0xAquaWolf/aquastack/issues) · [🎨 YouTube Channel](https://www.youtube.com/@0xAquaWolf) · [𝕏 X/Twitter](https://twitter.com/0xAquaWolf)
 
 </div>
