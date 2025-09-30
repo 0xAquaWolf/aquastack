@@ -69,3 +69,4 @@ coverage/
 
 # Vercel
 .vercel/
+apps/mobile/SelfVisionQuest.app
