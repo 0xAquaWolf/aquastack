@@ -1,12 +1,58 @@
 import type { GenericCtx } from '@convex-dev/better-auth'
 import type { DataModel } from './_generated/dataModel'
+import { expo } from '@better-auth/expo'
 import { createClient } from '@convex-dev/better-auth'
 import { convex } from '@convex-dev/better-auth/plugins'
-import { expo } from '@better-auth/expo'
 import { betterAuth } from 'better-auth'
-import { resolveSiteUrl, resolveTrustedOrigins } from '@svq/shared'
 import { components } from './_generated/api'
 import { query } from './_generated/server'
+
+const DEFAULT_LOCAL_SITE_URL = 'http://localhost:3000'
+
+function trimTrailingSlash(value: string) {
+  return value.replace(/\/+$/, '')
+}
+
+function resolveSiteUrl() {
+  const candidate
+    = process.env.SITE_URL?.trim()
+    || process.env.NEXT_PUBLIC_SITE_URL?.trim()
+    || process.env.CONVEX_SITE_URL?.trim()
+    || process.env.NEXT_PUBLIC_CONVEX_SITE_URL?.trim()
+    || process.env.EXPO_PUBLIC_CONVEX_SITE_URL?.trim()
+
+  if (!candidate) {
+    return DEFAULT_LOCAL_SITE_URL
+  }
+
+  return trimTrailingSlash(candidate)
+}
+
+function resolveExpoScheme() {
+  const scheme
+    = process.env.EXPO_APP_SCHEME?.trim()
+    || process.env.EXPO_PUBLIC_APP_SCHEME?.trim()
+
+  if (scheme) {
+    return scheme
+  }
+
+  if (process.env.NODE_ENV === 'development') {
+    return 'exp'
+  }
+
+  return undefined
+}
+
+function resolveTrustedOrigins() {
+  const scheme = resolveExpoScheme()
+  if (!scheme) {
+    return []
+  }
+
+  const origin = scheme.endsWith('://') ? scheme : `${scheme}://`
+  return [origin]
+}
 
 const siteUrl = resolveSiteUrl()
 const trustedOrigins = resolveTrustedOrigins()

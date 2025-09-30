@@ -32,7 +32,10 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.lighttech.selfvisionquest"
+      "bundleIdentifier": "com.lighttech.selfvisionquest",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -40,6 +43,12 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.lighttech.selfvisionquest"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "70ce6c01-e627-43ee-9dc9-808f51db2a60"
+      }
     }
   }
 }

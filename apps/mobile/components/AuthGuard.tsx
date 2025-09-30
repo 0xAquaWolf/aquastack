@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native'
-import { useRouter } from 'expo-router'
+import { useFocusEffect, useRouter } from 'expo-router'
 import { authClient } from '@/lib/auth-client'
 
 interface AuthGuardProps {
@@ -12,11 +12,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
 
-  useEffect(() => {
-    checkAuth()
-  }, [])
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const session = await authClient.getSession()
       setIsAuthenticated(!!session.data)
@@ -28,7 +24,17 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     finally {
       setIsLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  useFocusEffect(
+    useCallback(() => {
+      checkAuth()
+    }, [checkAuth]),
+  )
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

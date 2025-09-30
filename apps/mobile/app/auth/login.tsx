@@ -28,6 +28,7 @@ export default function LoginScreen() {
         Alert.alert('Login Failed', result.error.message || 'Invalid credentials')
       }
       else {
+        await authClient.getSession()
         // Navigate to dashboard on successful login
         router.replace('/dashboard')
       }

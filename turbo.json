@@ -9,19 +9,37 @@
         "CONVEX_DEPLOYMENT",
         "CONVEX_URL",
         "CONVEX_SITE_URL",
+        "SITE_URL",
         "NEXT_PUBLIC_CONVEX_URL",
-        "EXPO_PUBLIC_CONVEX_URL"
+        "EXPO_PUBLIC_CONVEX_URL",
+        "EXPO_PUBLIC_CONVEX_SITE_URL",
+        "EXPO_APP_SCHEME",
+        "EXPO_PUBLIC_APP_SCHEME",
+        "BETTER_AUTH_URL",
+        "EXPO_PUBLIC_BETTER_AUTH_URL"
       ]
     },
     "build": {
       "dependsOn": ["^build"],
-      "outputs": ["dist/**", ".next/**", "!.next/cache/**"],
+      "outputs": [
+        "dist/**",
+        ".next/**",
+        "!.next/cache/**",
+        "android/**",
+        "ios/**"
+      ],
       "env": [
         "CONVEX_DEPLOYMENT",
         "CONVEX_URL",
         "CONVEX_SITE_URL",
+        "SITE_URL",
         "NEXT_PUBLIC_CONVEX_URL",
-        "EXPO_PUBLIC_CONVEX_URL"
+        "EXPO_PUBLIC_CONVEX_URL",
+        "EXPO_PUBLIC_CONVEX_SITE_URL",
+        "EXPO_APP_SCHEME",
+        "EXPO_PUBLIC_APP_SCHEME",
+        "BETTER_AUTH_URL",
+        "EXPO_PUBLIC_BETTER_AUTH_URL"
       ]
     },
     "lint": {
