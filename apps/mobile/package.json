@@ -1,5 +1,5 @@
 {
-  "name": "@svq/mobile",
+  "name": "@aqua/mobile",
   "version": "1.0.0",
   "private": true,
   "main": "expo-router/entry",
@@ -18,7 +18,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "web": "expo start --web",
-    "refresh": "watchman watch-del '/Users/0xaquawolf/Projects/selfvision-quest' ; watchman watch-project '/Users/0xaquawolf/Projects/selfvision-quest'",
+    "refresh": "watchman watch-del '/Users/0xaquawolf/Projects/aquastack' ; watchman watch-project '/Users/0xaquawolf/Projects/aquastack'",
     "start:clear": "expo start --dev-client --clear",
     "reset": "pnpm run refresh && pnpm run dev:clear"
   },
@@ -28,8 +28,8 @@
     "@expo/metro-runtime": "^6.1.2",
     "@expo/vector-icons": "^15.0.2",
     "@react-navigation/native": "^7.1.8",
-    "@svq/convex": "workspace:*",
-    "@svq/shared": "workspace:*",
+    "@aqua/convex": "workspace:*",
+    "@aqua/shared": "workspace:*",
     "@tanstack/react-query": "5.90.2",
     "@tanstack/react-query-devtools": "5.90.2",
     "better-auth": "1.3.8",

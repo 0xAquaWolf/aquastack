@@ -3,7 +3,7 @@ import { ScrollView, Text, View } from 'react-native'
 import { authClient } from '@/lib/auth-client'
 import AuthGuard from '@/components/AuthGuard'
 import { useQuery } from 'convex/react'
-import { api } from '@svq/convex'
+import { api } from '@aqua/convex'
 
 export default function DashboardTabScreen() {
   const { data: session } = authClient.useSession()

@@ -1,5 +1,5 @@
 {
-  "name": "@svq/ui",
+  "name": "@aqua/ui",
   "version": "0.0.0",
   "private": true,
   "main": "./index.ts",

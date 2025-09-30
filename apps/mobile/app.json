@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "SelfVision Quest",
-    "slug": "selfvision-quest",
+    "name": "AquaStack",
+    "slug": "aquastack",
     "version": "1.0.0",
-    "scheme": "selfvisionquest",
+    "scheme": "aquastack",
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -31,7 +31,7 @@
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.lighttech.selfvisionquest",
+      "bundleIdentifier": "com.aquastack.app",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
       }
@@ -41,12 +41,12 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.lighttech.selfvisionquest"
+      "package": "com.aquastack.app"
     },
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "70ce6c01-e627-43ee-9dc9-808f51db2a60"
+        "projectId": ""
       }
     }
   }

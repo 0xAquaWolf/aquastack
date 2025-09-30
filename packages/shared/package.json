@@ -1,11 +1,11 @@
 {
-  "name": "@svq/shared",
+  "name": "@aqua/shared",
   "version": "0.0.0",
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
   "dependencies": {
-    "@svq/convex": "workspace:*"
+    "@aqua/convex": "workspace:*"
   },
   "devDependencies": {
     "typescript": "5.8.3"

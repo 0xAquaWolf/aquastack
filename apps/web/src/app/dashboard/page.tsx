@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useQuery } from "convex/react";
-import { api } from "@svq/convex";
+import { api } from "@aqua/convex";
 import { authClient } from "@/lib/auth-client";
 
 export default function DashboardPage() {

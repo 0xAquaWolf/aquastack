@@ -7,7 +7,7 @@
     "module": "ESNext",
     "moduleResolution": "bundler",
     "paths": {
-      "@svq/*": [
+      "@aqua/*": [
         "packages/*/src",
         "packages/*",
         "apps/*/src",

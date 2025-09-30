@@ -81,6 +81,12 @@ importers:
 
   apps/mobile:
     dependencies:
+      '@aqua/convex':
+        specifier: workspace:*
+        version: link:../convex
+      '@aqua/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@better-auth/expo':
         specifier: 1.3.8
         version: 1.3.8(better-auth@1.3.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0))
@@ -96,12 +102,6 @@ importers:
       '@react-navigation/native':
         specifier: ^7.1.8
         version: 7.1.17(react-native@0.81.4(@babel/core@7.28.4)(@types/react@19.1.13)(react@19.1.0))(react@19.1.0)
-      '@svq/convex':
-        specifier: workspace:*
-        version: link:../convex
-      '@svq/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       '@tanstack/react-query':
         specifier: 5.90.2
         version: 5.90.2(react@19.1.0)
@@ -190,18 +190,18 @@ importers:
 
   apps/web:
     dependencies:
+      '@aqua/convex':
+        specifier: workspace:*
+        version: link:../convex
+      '@aqua/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      '@aqua/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@convex-dev/better-auth':
         specifier: ^0.8.6
         version: 0.8.6(better-auth@1.3.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(convex@1.27.3(react@19.1.0))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.9.2)
-      '@svq/convex':
-        specifier: workspace:*
-        version: link:../convex
-      '@svq/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
-      '@svq/ui':
-        specifier: workspace:*
-        version: link:../../packages/ui
       better-auth:
         specifier: 1.3.8
         version: 1.3.8(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
@@ -242,7 +242,7 @@ importers:
 
   packages/shared:
     dependencies:
-      '@svq/convex':
+      '@aqua/convex':
         specifier: workspace:*
         version: link:../../apps/convex
     devDependencies:

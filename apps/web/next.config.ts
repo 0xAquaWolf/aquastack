@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  transpilePackages: ["@svq/convex"],
+  transpilePackages: ["@aqua/convex"],
 };
 
 export default nextConfig;
